@@ -3,9 +3,10 @@
 \usepackage[top=2cm,bottom=2cm,left=2cm,right=2cm]{geometry}
 
 \title{Dynamic Graphs}
-\author{Antonin Décimo}
 
 \begin{document}
+
+\section{Notions}
 
 \paragraph{Transports Publics}
 L'idée est de représenter un réseau de transport public (métros,
@@ -45,6 +46,31 @@ les lignes entre les stations.
   \end{itemize}.
 \end{itemize}
 
+\paragraph{Points de vue}
+Dans~\cite{casteigts2012time}, on parle de point de vue de
+l'évolution. Du point de vue de l'arrête, sa disponibilité et sa
+latence change au cours du temps. Pour un noeud, c'est son voisinage.
+Pour tout le graphe, c'est un événement. Chaque événement définit un
+nouveau sous-graphe statique. Le graphe dynamique est une séquence de
+graphes statiques tels que \(G_i \neq G_{i+1}\).
+
+\paragraph{Sous-graphes}
+On définit assez naturellement la notion de sous-graphe et de
+\textit{sous-graphe temporel} dans~\cite{casteigts2012time}
+et~\cite{latapy2017stream}.
+
+\paragraph{Voyage}
+Un voyage est un chemin dans le graphe respectant les contraintes
+temporelles.
+
+\paragraph{Distance}
+Deux notions de distance (sur un voyage)~:
+\begin{itemize}
+\item le voyage le plus court (\textit{hop-count})
+\item le voyage le plus rapide (qui prends le moins de temps, ou qui
+  termine le premier) (\textbf{toujours pas clair})
+\end{itemize}
+
 \paragraph{Algorithmes}
 Est introduite en~\cite{xuan2003computing} deux notions de graphes
 dynamiques, les \textit{evolving graphs (EG)} et les \textit{timed
@@ -60,6 +86,8 @@ respecte cette propriété.
 On peut alors calculer les plus courts (\textit{hop-count}) chemins,
 et (plus intéressant) les chemins les plus rapides pour toutes les
 paires de chemins.
+
+\section{Papiers}
 
 \bibliographystyle{plain}
 \bibliography{tre}
