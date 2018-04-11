@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[top=2cm,bottom=2cm,left=2cm,right=2cm]{geometry}
+
+\title{Dynamic Graphs}
+\author{Antonin Décimo}
+
+\begin{document}
+
+\paragraph{Transports Publics}
+L'idée est de représenter un réseau de transport public (métros,
+trams, bus, …) par un graphe, et d'étudier les modèles et les
+algorithmes pour une panoplie de problèmes~:
+\begin{itemize}
+\item Recherche du chemin le plus rapide
+\item Recherche du chemin avec la date d'arrivée la plus précoce
+\item Multi-critères~: avec le moins de changements
+\item Rechercher tous les chemins dans une plage horaire
+\end{itemize}
+
+
+\paragraph{Graphes Dynamiques}
+Les modèles varient autour de l'idée de \textit{graphes
+  dynamiques}. Les noeuds représentent des stations, et les arrêtes
+les lignes entre les stations.
+
+\begin{itemize}
+\item Un graphe dynamique peut être vu comme une séquence de graphes
+  au cours du temps \(\mathcal{N} = \dots, \mathcal{N}_{t-1},
+  \mathcal{N}_{t}, \mathcal{N}_{t+1}, \dots\). La latence d'un arc ou
+  d'un noeud est une simple étiquette du noeud~\cite{xuan2003computing}.
+\item Dans~\cite{casteigts2012time}, le formalisme est plus élégant (à
+  mon sens).
+  \(\mathcal{G} = (V, E, \mathcal{T}, \rho, \zeta, \psi, \varphi)\),
+  où~:
+  \begin{itemize}
+  \item \(\rho : E \times \mathcal{T} \to \mathbb{B}\), fonction de
+    présence des arrêtes,
+  \item \(\zeta : E \times \mathcal{T} \to \mathbb{T}\), fonction de
+    latence des arrêtes,
+  \item \(\psi : V \times \mathcal{T} \to \mathbb{B}\), fonction de
+    présence des noeuds,
+  \item \(\varphi : V \times \mathcal{T} \to \mathbb{T}\), fonction de
+    latence des noeuds
+  \end{itemize}.
+\end{itemize}
+
+\paragraph{Algorithmes}
+Est introduite en~\cite{xuan2003computing} deux notions de graphes
+dynamiques, les \textit{evolving graphs (EG)} et les \textit{timed
+  evolving graphs (TEG)}, la différence étant que les \textit{TEG}
+disposent d'une fonction de latence sur les arrêtes.
+
+Pour appliquer l'algorithme de Dijkstra, il faut remarquer que dans un
+graphe normal, le préfixe d'un plus court chemin est aussi un plus
+court chemin. Or, cette propriété n'est pas vérifiée dans les graphes
+dynamiques. Il faut donc trouver à chaque fois un chemin préfixe qui
+respecte cette propriété.
+
+On peut alors calculer les plus courts (\textit{hop-count}) chemins,
+et (plus intéressant) les chemins les plus rapides pour toutes les
+paires de chemins.
+
+\bibliographystyle{plain}
+\bibliography{tre}
+
+\end{document}
