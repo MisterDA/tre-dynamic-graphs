@@ -1,10 +1,129 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage{amsmath,amssymb}
-\usepackage[top=2cm,bottom=2cm,left=2cm,right=2cm]{geometry}
+\documentclass[12pt,a4paper]{article}
+\usepackage{polyglossia}
+\setmainlanguage{french}
+\usepackage{amsmath,amssymb,amsthm}
+% \usepackage[margin=1.5cm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{subfig}
 
-\title{Dynamic Graphs}
+\title{Graphes Temporels ou Dynamiques}
+\author{Antonin Décimo\\
+Encadrants~: Michel Habib, Laurent Viennot}
 
 \begin{document}
+\maketitle
+\section{Introduction}
+Un graphe dynamique est un graphe qui évolue au cours du temps,
+c'est-à-dire que des nœuds ou des arêtes peuvent apparaître ou
+disparaître au cours du temps. On peut s'en servir pour modéliser des
+réseaux informatiques, comme du calcul distribué ou de la téléphonie
+mobile, ou bien encore des réseaux de transports routiers ou publics.
+
+Plusieurs modèles existent dans la littérature, un des plus simples
+étant de considérer un ensemble de nœuds fixé, et seulement des arêtes
+qui évoluent entre ces nœuds, ce qui amène à considérer une suite de
+graphes statiques.
+
+\begin{figure}[h]
+  \centering
+  \subfloat[\(G_1\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.5, transform shape]
+      \node[node] (e) {e};
+      \node[node, above left=of e] (a) {a};
+      \node[node, above right=of e] (b) {b};
+      \node[node, below right=of e] (c) {c};
+      \node[node, below left=of e] (d) {d};
+
+      \path (a) edge (b);
+      \path (e) edge (c);
+    \end{tikzpicture}}
+  \qquad
+  \subfloat[\(G_2\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.5, transform shape]
+      \node[node] (e) {e};
+      \node[node, above left=of e] (a) {a};
+      \node[node, above right=of e] (b) {b};
+      \node[node, below right=of e] (c) {c};
+      \node[node, below left=of e] (d) {d};
+
+      \path (a) edge (b) edge [bend left=30] (c);
+    \end{tikzpicture}}
+  \qquad
+  \subfloat[\(G_3\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.5, transform shape]
+      \node[node] (e) {e};
+      \node[node, above left=of e] (a) {a};
+      \node[node, above right=of e] (b) {b};
+      \node[node, below right=of e] (c) {c};
+      \node[node, below left=of e] (d) {d};
+
+      \path (c) edge (d) edge (e);
+      \path (a) edge (e);
+    \end{tikzpicture}}
+  \qquad
+  \subfloat[\(G_4\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.5, transform shape]
+      \node[node] (e) {e};
+      \node[node, above left=of e] (a) {a};
+      \node[node, above right=of e] (b) {b};
+      \node[node, below right=of e] (c) {c};
+      \node[node, below left=of e] (d) {d};
+
+      \path (b) edge (e) edge (c);
+      \path (c) edge (d);
+    \end{tikzpicture}}
+  \caption{Graphe dynamique \(G = (G_1, G_2, G_3, G_4)\)}
+\end{figure}
+
+\subsection{Rappels}
+Rappelons d'abord quelques notions sur les graphes, qui nous seront
+utiles par la suite.
+
+\begin{description}
+\item[Connectivité, connexité]
+\item[\(k\)-connectivité]
+\item[Graphe expanseur]
+\item[Graphe \(d\)-régulier]
+\end{description}
+
+\section{Modèles de graphes dynamiques}
+
+\newtheorem{lamport_causality}{Causalité de Lamport}
+\begin{lamport_causality}
+  Soit un graphe dynamique \(G = (V, E, T)\), on peut définir un ordre
+  \(\rightarrow\) sur \((V, T)\), tel que
+  \((u, r) \rightarrow (v, r')\) ssi \((r' = r + 1)\) et
+  \(\{u, v\} \in E(r)\). L'\textit{ordre causal} \(\rightsquigarrow\)
+  est défini comme clôture réflexive et transitive de \(\rightarrow\).
+\end{lamport_causality}
+
+\section{Problèmes algorithmiques}
+
+Quels sont les problèmes algorithmiques que l'on peut rencontrer dans
+ce cadre~?
+
+\begin{description}
+  \item[Diamètre dynamique] (\textit{dynamic diameter},
+    \textit{flooding time}) Soit \(G = (V, E)\) un graphe dynamique et
+    \(u \in V\). Si \(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\),
+    alors \(D\) est le diamètre dynamique du graphe. Il faut
+    comprendre que si \(u\) envoie un message au temps \(t\), alors le
+    message mettra au maximum \(D\) tours pour atteindre tous les
+    nœuds du graphe.
+  \item[Couverture] (\textit{cover time})
+  \item[Plus court chemin] L'algorithme de Dijkstra fonctionne dans
+    les graphes standards en remarquant que le préfixe d'un plus court
+    chemin est aussi un plus court chemin. Or, cette propriété n'est
+    pas vérifiée dans les graphes dynamiques.
+\end{description}
+
+
+\pagebreak
 
 \section{Notions}
 
