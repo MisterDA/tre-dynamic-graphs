@@ -1,11 +1,15 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{polyglossia}
 \setmainlanguage{french}
+\usepackage{csquotes}
 \usepackage{amsmath,amssymb,amsthm}
-% \usepackage[margin=1.5cm]{geometry}
+\usepackage[margin=2cm]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usepackage{subfig}
+\usepackage[backend=biber, style=alphabetic]{biblatex}
+\bibliography{tre.bib}
+\usepackage[colorlinks, citecolor=blue]{hyperref}
 
 \title{Graphes Temporels ou Dynamiques}
 \author{Antonin Décimo\\
@@ -85,13 +89,68 @@ Rappelons d'abord quelques notions sur les graphes, qui nous seront
 utiles par la suite.
 
 \begin{description}
-\item[Connectivité, connexité]
-\item[\(k\)-connectivité]
-\item[Graphe expanseur]
-\item[Graphe \(d\)-régulier]
+\item[Graphe \(k\)-régulier] (\textit{\(k\)-regular}) Un graphe est
+  \(k\)-régulier si chacun de ses sommets est de degré \(k\).
+\item[\(k\)-sommet-connexe] (\textit{\(k\)-vertex-connected}) Un
+  graphe est \(k\)-sommet-connexe s'il possède plus de \(k\) sommets
+  et s'il reste connexe après en avoir ôté moins de \(k\).
+\item[Graphe expanseur] (\textit{expander graph}) Le taux d'expansion
+  d'un graphe est une mesure de sa connectivité. Soit \(G = (V, E)\)
+  un graphe, et \(W\) un sous-graphe de \(G\). La \textbf{frontière
+    extérieure des sommets} (\textit{outer vertex boundary}) est
+  l'ensemble des sommets de \(V \setminus W\)ayant au moins un sommet
+  dans \(W\).
+  \[\partial_{out}(W) = \{v \in V \setminus W | \exists w \in W (w, v)
+    \in E\}\]
+  On définit alors le \textbf{taux d'expansion des sommets}.
+  \[h_{out}(G) = \min_{0 < |W| \leq n/2}\frac{|\partial_{out}(W)|}{|W|}\]
+  \(G\) est un graphe \(c\)-expanseur si pour tout \(W \subset V\) tel
+  que \(|W| \leq n / 2\), alors \(|\partial(W)| \geq c |W|\).
 \end{description}
 
 \section{Modèles de graphes dynamiques}
+
+Les graphes dynamiques (\textit{dynamic graphs}) sont aussi appelés
+graphes temporels (\textit{temporal graphs}), graphes de flux
+(\textit{stream graphs}), réseaux dynamiques (\textit{dynamic
+  network}), graphes évolutifs (\(\textit{evolving graphs}\)),
+graphes variants avec le temps (\(\textit{time-varying graphs}\)).
+
+\subsection{Modèles sans latence}
+
+\paragraph{Graphe de flux}\cite{latapy2017stream} Un graphe de flux
+\(S = (T, V, W, E)\) est un ensemble fini de nœuds \(V\), un ensemble
+d'instants \(T\), un ensemble de nœuds temporels
+\(W \subseteq T \times V\) (un ensemble de nœuds indexés par un
+temps), et un ensemble d'arêtes \(E \subseteq T \times (V \otimes V)\)
+tel que si \((t, uv) \in E\) alors \((t, u) \in W\) et
+\((t, v) \in W\) (si une arête existe à un temps \(t\), alors les deux
+nœuds de l'arête existent aussi à ce temps).
+
+\paragraph{Flux de liens} Si tous les nœuds du graphe de flux sont
+présents à chaque instant, on parle de flux de liens.
+
+\paragraph{Graphe évoluant}\cite{kuhn2011dynamic} Soit un graphe
+dynamique \(G = (V, E)\), où \(V\) est un ensemble de nœuds, et \(E :
+\mathrm{N}^{+} \to \mathcal{P}(V \times V)\) est une fonction attribuant
+à chaque tour \(r \in \mathrm{N}^{+}\) un ensemble d'arêtes \(E(r)\)
+pour ce tour. Ici l'ensemble des nœuds ne varie pas.
+
+\subsection{Modèles avec latence}
+
+\section{Notions et Propriétés}
+
+L'article~\cite{kuhn2010distributed} présente deux notions intéressantes.
+
+\newtheorem{t_interval_connectivity}{Connexité \(T\)‑intervalle}
+\begin{t_interval_connectivity}
+  Un graphe dynamique \(G = (V, E)\) est \(T\)‑intervalle connexe
+  (\textit{\(T\)‑interval connected}) pour \(T \geq 1\) si pour tout
+  \(r \in \mathrm{N}\), le graphe statique \(G_{r,T} := (V,
+  \bigcap_{i=r}^{r+T-1} E(r))\) est connexe. Le graphe est
+  \(\infty\)‑intervalle connexe s'il existe un graphe statique connexe
+  \(G' = (V, E')\) tel que pour tous \(r \in \mathrm{N}, E' \subseteq E(r)\)
+\end{t_interval_connectivity}
 
 \newtheorem{lamport_causality}{Causalité de Lamport}
 \begin{lamport_causality}
@@ -102,7 +161,21 @@ utiles par la suite.
   est défini comme clôture réflexive et transitive de \(\rightarrow\).
 \end{lamport_causality}
 
-\section{Problèmes algorithmiques}
+\section{Algorithmes}
+
+\subsection{Exercice~: algorithme du flot maximum}
+\paragraph{Flot} On considère un graphe orienté \(G = (V, E)\) et deux
+sommets \(s, t \in V\). Les arcs sont munis de capacités \(c : E \to
+\mathbb{R}^{+}\).
+Un flot sur \(G\) est un vecteur indexé par \(E\) qui vérifie (lois de
+Kirchhoff)~:
+\begin{itemize}
+\item \(\forall (u, v) \in E, 0 \leq \phi(u, v) \leq c(u, v)\)
+\item \(\forall v \in V, \sum_{(u, v) \in E} \phi(u, v) = \sum_{(v, w)
+    \in E} \phi(v, w)\)
+\end{itemize}
+On cherche un flot qui maximise \(\phi(t, s)\).
+
 
 Quels sont les problèmes algorithmiques que l'on peut rencontrer dans
 ce cadre~?
@@ -126,6 +199,7 @@ ce cadre~?
 \pagebreak
 
 \section{Notions}
+
 
 \paragraph{Transports Publics}
 L'idée est de représenter un réseau de transport public (métros,
@@ -218,7 +292,14 @@ dynamiques où la fonction de présence suit une loi de probabilité.
 Gros papier qui étend toutes les relations et les sous-structures sur
 les graphes aux graphes dynamiques.
 
-\bibliographystyle{plain}
-\bibliography{tre}
+% \bibliographystyle{plain}
+% \bibliography{tre}
+\printbibliography
+
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

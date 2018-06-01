@@ -1,8 +1,8 @@
 all:
-	latexmk -xelatex -bibtex
+	latexmk -xelatex
 
 clean:
 	latexmk -C
-	rm -rf auto *.bbl
+	rm -rf auto *.bbl *.run.xml
 
 .PHONY: all clean
