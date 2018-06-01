@@ -118,48 +118,114 @@ graphes variants avec le temps (\(\textit{time-varying graphs}\)).
 
 \subsection{Modèles sans latence}
 
-\paragraph{Graphe de flux}\cite{latapy2017stream} Un graphe de flux
-\(S = (T, V, W, E)\) est un ensemble fini de nœuds \(V\), un ensemble
-d'instants \(T\), un ensemble de nœuds temporels
-\(W \subseteq T \times V\) (un ensemble de nœuds indexés par un
-temps), et un ensemble d'arêtes \(E \subseteq T \times (V \otimes V)\)
-tel que si \((t, uv) \in E\) alors \((t, u) \in W\) et
-\((t, v) \in W\) (si une arête existe à un temps \(t\), alors les deux
-nœuds de l'arête existent aussi à ce temps).
+\paragraph{Graphe de flux}\cite{latapy2017stream} (\textit{stream
+  graph}) Un graphe de flux \(S = (T, V, W, E)\) est un ensemble fini
+de nœuds \(V\), un ensemble d'instants \(T\), un ensemble de nœuds
+temporels \(W \subseteq T \times V\) (un ensemble de nœuds indexés par
+un temps), et un ensemble d'arêtes
+\(E \subseteq T \times (V \otimes V)\) tel que si \((t, uv) \in E\)
+alors \((t, u) \in W\) et \((t, v) \in W\) (si une arête existe à un
+temps \(t\), alors les deux nœuds de l'arête existent aussi à ce
+temps).
 
-\paragraph{Flux de liens} Si tous les nœuds du graphe de flux sont
-présents à chaque instant, on parle de flux de liens.
+\paragraph{Flux de liens} (\textit{link stream}) Si tous les nœuds du
+graphe de flux sont présents à chaque instant, on parle de flux de
+liens.
 
-\paragraph{Graphe évoluant}\cite{kuhn2011dynamic} Soit un graphe
-dynamique \(G = (V, E)\), où \(V\) est un ensemble de nœuds, et \(E :
-\mathrm{N}^{+} \to \mathcal{P}(V \times V)\) est une fonction attribuant
-à chaque tour \(r \in \mathrm{N}^{+}\) un ensemble d'arêtes \(E(r)\)
-pour ce tour. Ici l'ensemble des nœuds ne varie pas.
+\paragraph{Graphe évoluant}\cite{kuhn2011dynamic} (\textit{evolving
+  graph}) Soit un graphe dynamique \(G = (V, E)\), où \(V\) est un
+ensemble de nœuds, et
+\(E : \mathbb{N}^{+} \to \mathcal{P}(V \times V)\) est une fonction
+attribuant à chaque tour \(r \in \mathbb{N}^{+}\) un ensemble d'arêtes
+\(E(r)\) pour ce tour. Ici l'ensemble des nœuds ne varie pas.
 
 \subsection{Modèles avec latence}
+
+\paragraph{Graphe variant avec le temps}\cite{casteigts2012time} La
+principale différence avec les modèles ci-dessus est que la présence
+des entités n'est plus définie par un instant, mais par un intervalle
+de temps. On note \(\mathbb{T}\) le domaine temporel. Les auteurs
+proposent de rajouter un label \(L\) sur chaque arête, et préfèrent
+indiquer la présence d'arêtes et de nœuds par des fonctions. On a donc
+\(G = (V, E \subseteq L \times V \otimes V, T \subseteq \mathbb{T},
+\rho, \zeta)\), où~:
+\begin{itemize}
+\item \(\rho : E \times T \to \{\top, \bot\}\) est appelée fonction
+  de présence et indique si une arête donnée est disponible à un temps
+  donné.
+\item \(\zeta : E \times T \to \mathbb{T}\) est appelée fonction de
+  latence et indique le temps de parcours d'une arête donnée pour un
+  départ à un temps donné (la latence d'une arête pouvant changer au
+  cours du temps).
+\end{itemize}
+
+On peut à l'instar des arêtes étendre ce modèle aux nœuds du graphe,
+avec \(\psi\) la fonction de présence et \(\varphi\) la fonction de
+latence. En choisissant une fonction de latence constante, on se
+ramène à un modèle sans latence.
 
 \section{Notions et Propriétés}
 
 L'article~\cite{kuhn2010distributed} présente deux notions intéressantes.
 
-\newtheorem{t_interval_connectivity}{Connexité \(T\)‑intervalle}
-\begin{t_interval_connectivity}
-  Un graphe dynamique \(G = (V, E)\) est \(T\)‑intervalle connexe
-  (\textit{\(T\)‑interval connected}) pour \(T \geq 1\) si pour tout
-  \(r \in \mathrm{N}\), le graphe statique \(G_{r,T} := (V,
-  \bigcap_{i=r}^{r+T-1} E(r))\) est connexe. Le graphe est
-  \(\infty\)‑intervalle connexe s'il existe un graphe statique connexe
-  \(G' = (V, E')\) tel que pour tous \(r \in \mathrm{N}, E' \subseteq E(r)\)
-\end{t_interval_connectivity}
+\paragraph{Connexité \(T\)‑intervalle}
+Un graphe dynamique \(G = (V, E)\) est \(T\)‑intervalle connexe
+(\textit{\(T\)‑interval connected}) pour \(T \geq 1\) si pour tout
+\(r \in \mathbb{N}\), le graphe statique
+\(G_{r,T} := (V, \bigcap_{i=r}^{r+T-1} E(r))\) est connexe. Le graphe
+est \(\infty\)‑intervalle connexe s'il existe un graphe statique
+connexe \(G' = (V, E')\) tel que pour tous
+\(r \in \mathbb{N}, E' \subseteq E(r)\)
 
-\newtheorem{lamport_causality}{Causalité de Lamport}
-\begin{lamport_causality}
-  Soit un graphe dynamique \(G = (V, E, T)\), on peut définir un ordre
-  \(\rightarrow\) sur \((V, T)\), tel que
-  \((u, r) \rightarrow (v, r')\) ssi \((r' = r + 1)\) et
-  \(\{u, v\} \in E(r)\). L'\textit{ordre causal} \(\rightsquigarrow\)
-  est défini comme clôture réflexive et transitive de \(\rightarrow\).
-\end{lamport_causality}
+\paragraph{Causalité de Lamport}
+Soit un graphe dynamique \(G = (V, E, T)\), on peut définir un ordre
+\(\rightarrow\) sur \((V, T)\), tel que
+\((u, r) \rightarrow (v, r')\) ssi \((r' = r + 1)\) et
+\(\{u, v\} \in E(r)\). L'\textit{ordre causal} \(\rightsquigarrow\)
+est défini comme clôture réflexive et transitive de \(\rightarrow\).
+
+\subsection{Voyages et distances}
+
+Les articles~\cite{xuan2003computing},~\cite{casteigts2012time}, et
+~\cite{latapy2017stream} définissent les concepts de chemins,
+distances, et voyages dans les graphes dynamiques. Nous allons
+considérer le modèle de~\cite{casteigts2012time}
+(\(G = (V, E, T, \rho, \zeta)\)), plus complet.
+
+\paragraph{Voyages, chemins} (\textit{journeys, paths}) Un voyage est
+une séquence \(J = \{(e_1, t_1), \dots, (e_k, t_k)\}\) telle que
+\({e_1, \dots, e_k}\) est une marche dans le graphe,
+\(\rho(e_i, t_i) = \top\), et \(t_{i+1} \geq t_i + \zeta(e_i, t_i)\)
+pour tout \(i < k\). Selon l'application, on pourra supposer
+\(\rho_{[t_i, t_i + \zeta(e_i, t_i)]}(e_i) = \top\), c'est-à-dire que
+l'arête reste présente tandis qu'elle est traversée.
+
+Note~: les auteurs ne proposent pas de définition tenant compte de la
+présence ni de la latence des nœuds.
+
+Dans les graphes dynamiques, les chemins sont asymétriques.
+
+\paragraph{Distance topologique} La distance topologique entre deux
+nœuds dans un graphe est la longueur minimum (en nombre d'arêtes) des
+chemins entre ces nœuds. On parle de \textbf{chemin le plus court}
+(\textit{shortest path}).
+
+\paragraph{Distance temporelle}
+On dit qu'un chemin est \textbf{le plus rapide} (\textit{fastest
+  path}) s'il est de durée (la somme des latences des nœuds et des
+arêtes rencontrés) minimum.\\
+Le temps pour atteindre \((t, v)\) depuis \(u\) au temps \(\alpha\)
+est \(\mathcal{T}_{\alpha}(u, (t, v)) = \omega - \alpha\), où
+\(\omega\) est la plus petite valeur pour laquelle il existe un chemin
+de \((\alpha, u)\) à \((\omega, v)\). Un tel chemin est appelé
+\textbf{premier chemin} (\textit{foremost path}).
+
+\subsection{Structures}
+
+En généralisant le langage habituel des graphes, on peut définir les
+\textbf{sous-graphes dynamiques}, soit en considérant les sous-graphes
+induits par des sous-ensembles de nœuds ou d'arêtes, soit en se
+restreignant à un intervalle temporel.
 
 \section{Algorithmes}
 
@@ -181,121 +247,22 @@ Quels sont les problèmes algorithmiques que l'on peut rencontrer dans
 ce cadre~?
 
 \begin{description}
-  \item[Diamètre dynamique] (\textit{dynamic diameter},
-    \textit{flooding time}) Soit \(G = (V, E)\) un graphe dynamique et
-    \(u \in V\). Si \(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\),
-    alors \(D\) est le diamètre dynamique du graphe. Il faut
-    comprendre que si \(u\) envoie un message au temps \(t\), alors le
-    message mettra au maximum \(D\) tours pour atteindre tous les
-    nœuds du graphe.
-  \item[Couverture] (\textit{cover time})
-  \item[Plus court chemin] L'algorithme de Dijkstra fonctionne dans
-    les graphes standards en remarquant que le préfixe d'un plus court
-    chemin est aussi un plus court chemin. Or, cette propriété n'est
-    pas vérifiée dans les graphes dynamiques.
+\item[Diamètre dynamique] (\textit{dynamic diameter}, \textit{flooding
+    time}) Soit \(G = (V, E)\) un graphe dynamique et \(u \in V\). Si
+  \(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\), alors
+  \(D\) est le diamètre dynamique du graphe. Il faut comprendre que si
+  \(u\) envoie un message au temps \(t\), alors le message mettra au
+  maximum \(D\) tours pour atteindre tous les nœuds du graphe.
+\item[Couverture] (\textit{cover time})
+\item[Plus court chemin] L'algorithme de Dijkstra fonctionne dans les
+  graphes standards en remarquant que le préfixe d'un plus court
+  chemin est aussi un plus court chemin. Or, cette propriété n'est
+  pas vérifiée dans les graphes dynamiques.\\
+  Implémenter et présenter Dijkstra~\cite{xuan2003computing} sur les
+  graphes dynamiques.
 \end{description}
 
-
-\pagebreak
-
-\section{Notions}
-
-
-\paragraph{Transports Publics}
-L'idée est de représenter un réseau de transport public (métros,
-trams, bus, …) par un graphe, et d'étudier les modèles et les
-algorithmes pour une panoplie de problèmes~:
-\begin{itemize}
-\item Recherche du chemin le plus rapide
-\item Recherche du chemin avec la date d'arrivée la plus précoce
-\item Multi-critères~: avec le moins de changements
-\item Rechercher tous les chemins dans une plage horaire
-\end{itemize}
-
-
-\paragraph{Graphes Dynamiques}
-Les modèles varient autour de l'idée de \textit{graphes
-  dynamiques}. Les noeuds représentent des stations, et les arrêtes
-les lignes entre les stations.
-
-\begin{itemize}
-\item Un graphe dynamique peut être vu comme une séquence de graphes
-  au cours du temps \(\mathcal{N} = \dots, \mathcal{N}_{t-1},
-  \mathcal{N}_{t}, \mathcal{N}_{t+1}, \dots\). La latence d'un arc ou
-  d'un noeud est une simple étiquette du noeud~\cite{xuan2003computing}.
-\item Une autre présentation~\cite{casteigts2012time}~:
-  \(\mathcal{G} = (V, E, \mathcal{T}, \rho, \zeta, \psi, \varphi)\),
-  où~:
-  \begin{itemize}
-  \item \(\rho : E \times \mathcal{T} \to \mathbb{B}\), fonction de
-    présence des arrêtes,
-  \item \(\zeta : E \times \mathcal{T} \to \mathbb{T}\), fonction de
-    latence des arrêtes,
-  \item \(\psi : V \times \mathcal{T} \to \mathbb{B}\), fonction de
-    présence des noeuds,
-  \item \(\varphi : V \times \mathcal{T} \to \mathbb{T}\), fonction de
-    latence des noeuds
-  \end{itemize}
-\end{itemize}
-
-\paragraph{Points de vue}
-Dans~\cite{casteigts2012time}, on parle de point de vue de
-l'évolution. Du point de vue de l'arrête, sa disponibilité et sa
-latence change au cours du temps. Pour un noeud, c'est son voisinage.
-Pour tout le graphe, c'est un événement. Chaque événement définit un
-nouveau sous-graphe statique. Le graphe dynamique est une séquence de
-graphes statiques tels que \(G_i \neq G_{i+1}\).
-
-\paragraph{Sous-graphes}
-On définit assez naturellement la notion de sous-graphe et de
-\textit{sous-graphe temporel} dans~\cite{casteigts2012time}
-et~\cite{latapy2017stream}.
-
-\paragraph{Voyage}
-Un voyage est un chemin dans le graphe respectant les contraintes
-temporelles.
-
-\paragraph{Distance}
-Deux notions de distance (sur un voyage)~:
-\begin{itemize}
-\item le voyage le plus court (\textit{hop-count})
-\item le voyage le plus rapide (qui prends le moins de temps, ou qui
-  termine le premier) (\textbf{toujours pas clair})
-\end{itemize}
-
-\paragraph{Algorithmes}
-Est introduite en~\cite{xuan2003computing} deux notions de graphes
-dynamiques, les \textit{evolving graphs (EG)} et les \textit{timed
-  evolving graphs (TEG)}, la différence étant que les \textit{TEG}
-disposent d'une fonction de latence sur les arrêtes.
-
-Pour appliquer l'algorithme de Dijkstra, il faut remarquer que dans un
-graphe normal, le préfixe d'un plus court chemin est aussi un plus
-court chemin. Or, cette propriété n'est pas vérifiée dans les graphes
-dynamiques. Il faut donc trouver à chaque fois un chemin préfixe qui
-respecte cette propriété.
-
-On peut alors calculer les plus courts (\textit{hop-count}) chemins,
-et (plus intéressant) les chemins les plus rapides pour toutes les
-paires de chemins.
-
-\section{Papiers}
-
-\paragraph{Time-varying graphs and dynamic networks}
-Introduction du concept de TVG.\@Classification des TVG en fonction
-des propriétés de connexion du graphe. Etude des phénomènes tels que
-le \textit{petit monde}, \textit{fairness \& balance}. Graphes
-dynamiques où la fonction de présence suit une loi de probabilité.
-
-\paragraph{Stream graphs and link streams for the modeling of
-  interactions over time}
-Gros papier qui étend toutes les relations et les sous-structures sur
-les graphes aux graphes dynamiques.
-
-% \bibliographystyle{plain}
-% \bibliography{tre}
-\printbibliography
-
+\printbibliography{}
 
 \end{document}
 
