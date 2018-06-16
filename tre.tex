@@ -9,7 +9,11 @@
 \usepackage{subfig}
 \usepackage[backend=biber, style=alphabetic]{biblatex}
 \bibliography{tre.bib}
+\usepackage{hyperxmp}
 \usepackage[colorlinks, citecolor=blue]{hyperref}
+\usepackage{xcolor}
+\usepackage{algorithm2e}
+\usepackage[type={CC}, modifier={by-sa}, version={4.0}]{doclicense}
 
 \title{Graphes Temporels ou Dynamiques}
 \author{Antonin Décimo\\
@@ -17,6 +21,7 @@ Encadrants~: Michel Habib, Laurent Viennot}
 
 \begin{document}
 \maketitle
+\doclicenseThis{}
 \section{Introduction}
 Un graphe dynamique est un graphe qui évolue au cours du temps,
 c'est-à-dire que des nœuds ou des arêtes peuvent apparaître ou
@@ -98,12 +103,13 @@ utiles par la suite.
   d'un graphe est une mesure de sa connectivité. Soit \(G = (V, E)\)
   un graphe, et \(W\) un sous-graphe de \(G\). La \textbf{frontière
     extérieure des sommets} (\textit{outer vertex boundary}) est
-  l'ensemble des sommets de \(V \setminus W\)ayant au moins un sommet
+  l'ensemble des sommets de \(V \setminus W\) ayant au moins un voisin
   dans \(W\).
-  \[\partial_{out}(W) = \{v \in V \setminus W | \exists w \in W (w, v)
-    \in E\}\]
+  \[\partial(W) = \left\{v \in V \setminus W \,\middle|\, \exists w
+      \in W, (w, v) \in E\right\}\]
+
   On définit alors le \textbf{taux d'expansion des sommets}.
-  \[h_{out}(G) = \min_{0 < |W| \leq n/2}\frac{|\partial_{out}(W)|}{|W|}\]
+  \[h(G) = \min_{0 < |W| \leq n/2}\frac{|\partial(W)|}{|W|}\]
   \(G\) est un graphe \(c\)-expanseur si pour tout \(W \subset V\) tel
   que \(|W| \leq n / 2\), alors \(|\partial(W)| \geq c |W|\).
 \end{description}
@@ -128,20 +134,24 @@ alors \((t, u) \in W\) et \((t, v) \in W\) (si une arête existe à un
 temps \(t\), alors les deux nœuds de l'arête existent aussi à ce
 temps).
 
-\paragraph{Flux de liens} (\textit{link stream}) Si tous les nœuds du
-graphe de flux sont présents à chaque instant, on parle de flux de
-liens.
+\paragraph{Flux de liens}\cite{latapy2017stream} (\textit{link
+stream}) Si tous les nœuds du graphe de flux sont présents à chaque
+instant, on parle de flux de liens.
 
 \paragraph{Graphe évoluant}\cite{kuhn2011dynamic} (\textit{evolving
   graph}) Soit un graphe dynamique \(G = (V, E)\), où \(V\) est un
 ensemble de nœuds, et
 \(E : \mathbb{N}^{+} \to \mathcal{P}(V \times V)\) est une fonction
 attribuant à chaque tour \(r \in \mathbb{N}^{+}\) un ensemble d'arêtes
-\(E(r)\) pour ce tour. Ici l'ensemble des nœuds ne varie pas.
+\(E(r)\) pour ce tour. Ici l'ensemble des nœuds ne varie pas.\\
+
+
+Il n'y a pas de différence fondamentale entre les \textit{link
+  streams} et les \textit{evolving graphs}.
 
 \subsection{Modèles avec latence}
 
-\paragraph{Graphe variant avec le temps}\cite{casteigts2012time} La
+\paragraph{Time-Varying Graphs}\cite{casteigts2012time} (TVG) La
 principale différence avec les modèles ci-dessus est que la présence
 des entités n'est plus définie par un instant, mais par un intervalle
 de temps. On note \(\mathbb{T}\) le domaine temporel. Les auteurs
@@ -161,7 +171,7 @@ indiquer la présence d'arêtes et de nœuds par des fonctions. On a donc
 
 On peut à l'instar des arêtes étendre ce modèle aux nœuds du graphe,
 avec \(\psi\) la fonction de présence et \(\varphi\) la fonction de
-latence. En choisissant une fonction de latence constante, on se
+latence. En choisissant une fonction de latence constante à 1, on se
 ramène à un modèle sans latence.
 
 \section{Notions et Propriétés}
@@ -227,6 +237,22 @@ En généralisant le langage habituel des graphes, on peut définir les
 induits par des sous-ensembles de nœuds ou d'arêtes, soit en se
 restreignant à un intervalle temporel.
 
+Pour un graphe dynamique \(\mathcal{G} = (V, E, T, \rho, \zeta)\), on
+appelle \textbf{graphe sous-jacent} \(G = (V, E)\) le graphe statique
+dans lequel on oublie la dimension temporelle, et qui indique
+seulement les nœuds en relation à un certain temps dans \(T\).
+
+\subsection{Graphes dynamiques aléatoires}
+
+Dans~\cite{casteigts2012time} et~\cite{kuhn2011dynamic}, les auteurs
+construisent des graphes dynamiques aléatoires en posant que la
+fonction de présence d'une arête \(\rho : E \times T \to {0, 1}\) suit
+une loi de probabilité. On peut imaginer des graphes dynamiques
+suivant des chaînes de Markov, où une arête apparaît au tour suivant
+avec une probabilité \(p\) et disparaît avec une probabilité \(q\),
+indépendamment des autres arêtes. Si \(q = 1 - p\), chaque graphe
+statique est un graphe d'Erdős-Rényi.
+
 \section{Algorithmes}
 
 \subsection{Exercice~: algorithme du flot maximum}
@@ -242,6 +268,28 @@ Kirchhoff)~:
 \end{itemize}
 On cherche un flot qui maximise \(\phi(t, s)\).
 
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+    scale=0.5, transform shape]
+    \node[node] (s) {s};
+    \node[node, above right=of s] (a) {};
+    \node[node, right=of s] (b) {};
+    \node[node, right=of a] (c) {};
+    \node[node, right=of b] (d) {};
+    \node[node, below right=of c] (t) {t};
+
+    \path [->] (s) edge (a) edge (b);
+    \path [->] (a) edge (c) edge (d);
+    \path [->] (b) edge (d);
+    \path [->] (c) edge (t);
+    \path [->] (d) edge (t);
+    \path [->] (t) edge [bend left=30, dotted] (s);
+  \end{tikzpicture}
+  \caption{Flot}
+\end{figure}
+
+\subsection{Problèmes algoritmiques}
 
 Quels sont les problèmes algorithmiques que l'on peut rencontrer dans
 ce cadre~?
@@ -254,19 +302,195 @@ ce cadre~?
   \(u\) envoie un message au temps \(t\), alors le message mettra au
   maximum \(D\) tours pour atteindre tous les nœuds du graphe.
 \item[Couverture] (\textit{cover time})
-\item[Plus court chemin] L'algorithme de Dijkstra fonctionne dans les
-  graphes standards en remarquant que le préfixe d'un plus court
-  chemin est aussi un plus court chemin. Or, cette propriété n'est
-  pas vérifiée dans les graphes dynamiques.\\
-  Implémenter et présenter Dijkstra~\cite{xuan2003computing} sur les
-  graphes dynamiques.
 \end{description}
+
+\paragraph{Plus court chemin}
+(\textit{shortest path}). On considère les chemins les plus courts en
+nombre de sauts. Pour un nœud \(u\) au temps \(t\), fonction
+\(neighbours : V \times t \to \mathcal{P}(V \times T)\) renvoie
+\((v, t')\) si \(v\) est un voisin accessible de \(u\) au temps le
+plus tôt \(t' \geq t\).
+
+L'algorithme suivant, présenté dans~~\cite{xuan2003computing}, calcule
+les plus courts chemins dans un graphe dynamique. Les auteurs font
+plusieurs suppositions~:
+\begin{itemize}
+\item Les nœuds sont toujours présents. Bien que la structure de
+  données intègre une fonction de présence des nœuds, cet algorithme
+  n'en tient pas compte.
+\item Une arête existe tant qu'on peut la traverser.
+\item Les deux nœuds d'une arête existent tant qu'elle-même existe.
+\end{itemize}
+
+\begin{algorithm}[H]
+  \KwIn{Un graphe dynamique \(G\), un nœud \(s \in V_G\)}
+  \KwData{L'arbre \(T\) des paires \((u, t) \in V_G \times
+    \mathbb{R}^*_+\); un entier \(d\); un tableau \(earliest : V_G \to
+    \mathbb{R}^*_+\)}
+  \KwResult{L'arbre des plus courts chemins \(T\), un tableau
+    \(location : V_G \to T\)}
+  \(T = \{(s, 0)\}\)\;
+  \(earliest(s) \leftarrow 0\)\;
+  \(\forall u \neq s, earliest(u) \leftarrow \infty\)\;
+  \(d \leftarrow 1\)\;
+  \(location(s) \leftarrow (s, 0)\)\;
+  \While{\(\exists w \in V_G\) tel que \(location(w)\) n'est pas définie}{
+    \ForEach{\((u, t) \in T\) à la profondeur \(d\)}{
+      \ForEach{\((v, t') \in neighbours((u, t))\)}{
+        \If{\(location(v)\) n'est pas définie}{\(location(v)
+          \leftarrow (v, t')\)}
+        \If{\(earliest(v) > t'\)}{
+          \(earliest(v) \leftarrow t'\)\;
+          \((v, t')\) est enfant de \((u, t)\) dans \(T\)\;
+        }
+      }
+    }
+    \(d \leftarrow d + 1\)\;
+  }
+\end{algorithm}
+
+Une fois que l'arbre a été calculé, retrouver le chemin de \(s\) à
+n'importe quel sommet \(u\) est aisé~: la \(location\) du sommet donne
+la paire \((u, t)\) correspondante dans l'arbre. On retrouve le chemin
+en cherchant le parent de \((u, t)\) dans l'arbre \(T\).
+
+Une implémentation de cet algorithme réalisée en OCaml est disponible
+à l'adresse
+\url{https://gist.github.com/MisterDA/6dfb9740ce992ffc2890de83e968eb49}. Les
+contraintes de l'algorithme ont été conservées. L'implémentation ne
+vérifie pas que les données sont bien valides.
+
+\section{Articles de recherche}
+\subsection{Time-varying graphs and dynamic
+  networks~\cite{casteigts2012time}}
+Les auteurs identifient trois champs d'applications possibles des
+graphes dynamiques.
+\begin{description}
+\item[Delay-Tolerant Networks]~\cite{fall2007delay} La caractéristique
+  principale de ces réseaux est la possibilité de ne pas être connexe
+  à un moment donné. Les chemins généralement disponibles au cours du
+  temps, et la diffusion ou le routage sont réalisables grâce au
+  mécanisme de \textit{store-carry-forward} (un exemple est celui du
+  courrier postal).
+\item[Opportunistic-Mobility Networks] Ce sont aussi des DNT, avec la
+  différence que les nœuds sont mobiles. Il existe des réseaux de
+  taxis et de bus équipés de routeurs.
+\item[Real-World Complex Networks] Dans cette catégorie tombent tous
+  les autres types de réseaux (réseaux sociaux, transports, …),
+  unifiés par l'utilisation d'un même formalisme et de concepts comme
+  les chemins, la distance, la connexité, en fonction de l'évolution
+  du réseau.
+\end{description}
+
+Les auteurs définissent ensuite les \textit{time-varying graphs}, un
+modèle de graphe dynamique avec latence. Ils se contente dans le reste
+de l'article d'évoquer la latence sur les arêtes. La latence sur un
+nœud peut être imaginée comme un temps de calcul, ou de transfert.
+
+Les auteurs décrivent le graphe sous-jacent d'un graphe dynamique,
+puis développent la notion de point de vue par rapport à l'évolution
+du graphe. Pour une arête, l'évolution se cantonne à une variation de
+disponibilité (l'arête est-elle présente ou non) et de latence. Pour
+un nœud, il s'agit de changements dans le voisinage. Enfin, par
+rapport au graphe, l'évolution est considérée comme un séquence de
+graphes statiques \(G_1, G_2, \dots\), où chaque graphe statique est
+défini par un événement topologique (et \(G_i \neq G_{i+1}\)), ou bien
+par un instantané au temps \(t = i\) (et on peut avoir
+\(G_i = G_{i+1}\)). On parle d'\textit{evolving graphs} pour
+représenter un graphe dynamique par une séquence de graphes statiques.
+
+Les auteurs rappellent les définitions de sous-graphe d'un graphe
+dynamique, de chemin, de distance, et d'autres concepts.
+
+La contribution principale de l'article est la classification des TVG
+selon des propriétés. En voici quelques-unes~:
+
+\begin{itemize}
+\item \(\exists u \in V : \forall v \in V, u \rightsquigarrow v\). On
+  peut diffuser dans tous le graphe à partir d'un nœud.
+\item \(\exists u \in V : \forall v \in V, v \rightsquigarrow u\). Il
+  existe un nœud qui peut être atteint par tous les autres. C'est une
+  condition nécessaire pour un calcul réparti sur tout le réseau, avec
+  un nœud de sortie.
+\item
+  \(\forall e \in E, \forall t \in T, \forall k \in \mathbb{N},
+  \rho(e, t) = \rho(e, t + kp)\), pour un \(p \in T\), et \(G\) est
+  connexe. Cette propriété de périodicité peut être retrouvée dans les
+  réseaux de transports, ou les DNT.\@ On peut s'en servir pour
+  réutiliser des calculs de chemins, modulo \(p\).
+\end{itemize}
+
+Sont présentés les phénomènes de \textit{small world}, où la distance
+(en termes de sauts) entre deux nœuds croît logarithmiquement par
+rapport au nombre de nœuds du graphe; et la \textit{fairness and
+  balance}, l'écart-type de l'excentricité temporelle des nœuds.\\
+
+En conclusion, les auteurs remarquent que peu de problèmes autour des
+graphes dynamiques ont été étudiés, mais si une situation peut être
+modélisée par un graphe dynamique, alors on peut se servir du
+formalisme et des phénomènes présentés pour l'étudier. Une situation
+intéressante est celle où on modélise les interactions d'un groupe
+social par un graphe dynamique et de on tente de minimiser
+l'éloignement temporel moyen afin d'accélérer les échanges.
+
+\subsection{Dynamic Netwoks: Models and
+  Algorithms~\cite{kuhn2011dynamic}}
+
+Il s'agit essentiellement d'une revue de la littérature, mais qui
+présente néanmoins deux résultats. Tout d'abord, les auteurs
+définissent leur cadre d'étude~: des réseaux dynamiques dans lesquels
+les changements sont incessants, incontrôlables. Les algorithmes
+doivent terminer.
+
+Le modèle utilisé est celui des \textit{evolving graphs}, le temps est
+discrétisé. La fonction de présence des arêtes est dynamique, et
+déterminée par un \textbf{modèle d'adversaire}. On a
+l'\textit{adaptative worst-case adversary} qui génère le graphe à la
+volée d'après l'évolution passée du graphe; l'\textit{oblivious
+  worst-case adversary} impose un graphe pré-déterminé; et le
+\textit{random-graph adversary}, lequel n'est pas vraiment un
+adversaire mais une loi de probabilité déterminant l'évolution du
+graphe.
+
+\paragraph{Croissance de nœuds} Les auteurs définissent la \textit{vertex
+  growth function} \(g : \mathbb{N} \to \mathbb{N}\), qui généralise
+la notion de graphe expanseur. Un graphe (statique) \(G = (V, E)\) a
+une croissance de nœuds \(g\) si pour tout ensemble de nœuds \(S
+\subset V\) de taille \(s = |S| \leq |V|/2\), l'ensemble des voisins
+\(N(S) := \{v \in V \setminus S : \exists u \in S : (u, v) \in E\}\)
+est de taille au moins \(|N(S)| \geq g(|S|)\).
+
+Par exemple, si \(G\) est connexe, sa croissance est au moins \(1\);
+s'il est \(k\)-connexe, sa croissance est au moins \(g(s) = k\); si
+\(G\) est un \(\alpha\)-expanseur, alors \(g(s) = \alpha s\).
+
+On note \(g^{(f)}\) l'itérée après \(f\) tours, avec
+\(g^{(0)}(s) = s\), et pour \(f > 0\),
+\(g^{(f)}(s) = g^{(f-1)}(s) + g(g^{(f-1)}(s))\).
+
+\textcolor{red}{FIXME:\@ clarifier, exemple}.\\
+
+Si chaque graphe statique est un expanseur, le diamètre dynamique est
+\(O(\log n)\); s'ils sont \(k\)-connexe, le diamètre est \(O(n/k)\).
+\textcolor{red}{FIXME:\@ quote, preuve}.
+
+\paragraph{Lemme} Soit \(G = (V, E)\) un graphe dynamique tel que pour
+chaque tour \(r\), le graphe statique \(G(r)\) est \(g\)-croissant. Le
+diamètre dynamique de \(G\) est au plus \(2d\), où \(d\) est le plus
+petit entier tel que \(g^{(d)}(1) > |V|/2\).\\
+
+Les auteurs considèrent ensuite le problème de la synchronisation
+d'horloges dans un réseau. Cela peut être utile pour passer
+discrétiser le temps, par exemple pour effectuer une action toutes les
+\(t\) secondes.
+
+Les auteurs prouvent les bornes inférieure et supérieure du
+diamètre dynamique pour les graphes de Markov.\\
+
+Afin de pouvoir calculer dans un graphe (par exemple compter le
+nombres de nœuds, en supposant qu'il ne varie pas), les auteurs
+explorent un problème intermédiaire, le \(k\)-comité.
 
 \printbibliography{}
 
 \end{document}
-
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: t
-%%% End:
