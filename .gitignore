@@ -1,5 +1,4 @@
-
-# Created by https://www.gitignore.io/api/latex
+# Created by https://www.gitignore.io/api/latex,ocaml
 
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
@@ -229,5 +228,27 @@ TSWLatexianTemp*
 # glossaries
 *.glstex
 
+### OCaml ###
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
 
-# End of https://www.gitignore.io/api/latex
+# ocamlbuild working directory
+_build/
+
+# ocamlbuild targets
+*.byte
+*.native
+
+# oasis generated files
+setup.data
+setup.log
+
+
+# End of https://www.gitignore.io/api/latex,ocaml
