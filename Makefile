@@ -1,5 +1,5 @@
 pdf:
-	latexmk -xelatex
+	latexmk -xelatex -shell-escape -interaction=batchmode
 
 dyn:
 	ocamlopt -g dyn.ml -o dyn
