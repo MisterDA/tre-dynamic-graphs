@@ -91,9 +91,9 @@ let build_shortest_path g s =
     let after {node = v; arc_schedule; traversal} =
       let rec aux' = function
         | [] -> ()
-        | (start, _) :: l ->
+        | (start, finish) :: l ->
            let t' = start +. traversal in
-           if t' >= t then
+           if start <= t' && t' <= finish then
              let child = (v, t') in
              inner parent child
            else aux' l
@@ -103,11 +103,11 @@ let build_shortest_path g s =
     List.iter after neighbours
   in
 
-  let foreach_depth u =
+  let foreach_depth () =
     let rec aux = function
       | [] -> ()
-      | (u', _) as tnode :: tl ->
-         foreach_neighbours tnode;
+      | u :: tl ->
+         foreach_neighbours u;
          aux tl
     in
     aux !nodes_d0
@@ -116,8 +116,8 @@ let build_shortest_path g s =
   let rec find_not_located () =
     match NodeHashtbl.choose_opt not_located with
     | None -> ()
-    | Some (u, _) ->
-       foreach_depth u;
+    | Some _ ->
+       foreach_depth ();
        incr d;
        nodes_d0 := !nodes_d1;
        nodes_d1 := [];
