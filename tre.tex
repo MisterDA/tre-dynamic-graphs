@@ -21,7 +21,7 @@ Encadrants~: Michel Habib, Laurent Viennot}
 
 \begin{document}
 \maketitle
-\doclicenseThis{}
+% \doclicenseThis{}
 \section{Introduction}
 Un graphe dynamique est un graphe qui évolue au cours du temps,
 c'est-à-dire que des nœuds ou des arêtes peuvent apparaître ou
@@ -52,7 +52,7 @@ graphes statiques.
   \subfloat[\(G_2\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
-      \node[node] (e) {e};
+      \node[node, draw=none] (e) {};
       \node[node, above left=of e] (a) {a};
       \node[node, above right=of e] (b) {b};
       \node[node, below right=of e] (c) {c};
@@ -66,7 +66,7 @@ graphes statiques.
       scale=0.5, transform shape]
       \node[node] (e) {e};
       \node[node, above left=of e] (a) {a};
-      \node[node, above right=of e] (b) {b};
+      \node[node, draw=none, above right=of e] (b) {};
       \node[node, below right=of e] (c) {c};
       \node[node, below left=of e] (d) {d};
 
@@ -176,7 +176,8 @@ ramène à un modèle sans latence.
 
 \section{Notions et Propriétés}
 
-L'article~\cite{kuhn2010distributed} présente deux notions intéressantes.
+L'article~\cite{kuhn2010distributed} présente deux notions
+intéressantes.
 
 \paragraph{Connexité \(T\)‑intervalle}
 Un graphe dynamique \(G = (V, E)\) est \(T\)‑intervalle connexe
@@ -306,21 +307,39 @@ ce cadre~?
 
 \paragraph{Plus court chemin}
 (\textit{shortest path}). On considère les chemins les plus courts en
-nombre de sauts. Pour un nœud \(u\) au temps \(t\), fonction
-\(neighbours : V \times t \to \mathcal{P}(V \times T)\) renvoie
-\((v, t')\) si \(v\) est un voisin accessible de \(u\) au temps le
-plus tôt \(t' \geq t\).
+nombre de sauts.
 
-L'algorithme suivant, présenté dans~~\cite{xuan2003computing}, calcule
+L'algorithme suivant, présenté dans~\cite{xuan2003computing}, calcule
 les plus courts chemins dans un graphe dynamique. Les auteurs font
 plusieurs suppositions~:
 \begin{itemize}
-\item Les nœuds sont toujours présents. Bien que la structure de
-  données intègre une fonction de présence des nœuds, cet algorithme
-  n'en tient pas compte.
-\item Une arête existe tant qu'on peut la traverser.
-\item Les deux nœuds d'une arête existent tant qu'elle-même existe.
+\item On ne peut pas s'engager dans une arête si elle disparaît avant
+  de l'avoir traversée. Si l'arête \(e\) existe sur \([t_1, t_2]\), et
+  qu'on s'engage dans l'arête au temps \(t \in [t_1, t_2]\), alors
+  \(t + traversal(e) \leq t_2\).
+\item Si l'arête \(e = (u, v)\) existe sur \([t_1, t_2]\), alors \(u\)
+  et \(v\) existent sur \([t_1, t_2]\).
 \end{itemize}
+
+Pour un nœud \(u\) présent au temps \(t\), la fonction
+\(neighbours : V \times \mathbb{T} \to \mathcal{P}(V \times
+\mathbb{T})\) renvoie \((v, t')\) si \(v\) est un voisin accessible de
+\(u\) au temps le plus tôt \(t' \geq t\).
+
+\pagebreak
+
+L'algorithme présentait comme condition de boucle principale~:
+\begin{center}
+\verb|while| \(\exists w \in V_G\) \verb|tel que| \(location(w)\)
+\verb|n'est pas définie|.
+\end{center}
+Cette condition n'est pas très pertinente;
+en effet si un nœud n'est pas atteignable depuis \((s, 0)\), alors ce
+nœud ne sera jamais marqué par \(location\) et l'algorithme ne termine
+pas. Nous proposons de marquer par un booléen la découverte de nœuds à
+la profondeur \(d\). Si on découvre des nœuds à la profondeur \(d\),
+l'algorithme peut continuer. Sinon, on ne peut pas découvrir de nœuds
+plus profondément et l'algorithme doit s'arrêter.\\
 
 \begin{algorithm}[H]
   \KwIn{Un graphe dynamique \(G\), un nœud \(s \in V_G\)}
@@ -329,17 +348,23 @@ plusieurs suppositions~:
     \mathbb{R}^*_+\)}
   \KwResult{L'arbre des plus courts chemins \(T\), un tableau
     \(location : V_G \to T\)}
-  \(T = \{(s, 0)\}\)\;
+  \(T \leftarrow \{(s, 0)\}\)\;
   \(earliest(s) \leftarrow 0\)\;
   \(\forall u \neq s, earliest(u) \leftarrow \infty\)\;
   \(d \leftarrow 1\)\;
   \(location(s) \leftarrow (s, 0)\)\;
-  \While{\(\exists w \in V_G\) tel que \(location(w)\) n'est pas définie}{
+  \(run \leftarrow \top\)\;
+  % \While{\(\exists w \in V_G\) tel que \(location(w)\) n'est pas
+  % définie}{
+  \While{\(run = \top\)}{
+    \(run \leftarrow \bot\)\;
     \ForEach{\((u, t) \in T\) à la profondeur \(d\)}{
       \ForEach{\((v, t') \in neighbours((u, t))\)}{
-        \If{\(location(v)\) n'est pas définie}{\(location(v)
-          \leftarrow (v, t')\)}
-        \If{\(earliest(v) > t'\)}{
+        \If{\(location(v)\) n'est pas définie}{
+          \(location(v) \leftarrow (v, t')\)\;
+          \(run \leftarrow \top\)\;
+        }
+        \If{\(t' < earliest(v)\)}{
           \(earliest(v) \leftarrow t'\)\;
           \((v, t')\) est enfant de \((u, t)\) dans \(T\)\;
         }
@@ -350,15 +375,152 @@ plusieurs suppositions~:
 \end{algorithm}
 
 Une fois que l'arbre a été calculé, retrouver le chemin de \(s\) à
-n'importe quel sommet \(u\) est aisé~: la \(location\) du sommet donne
-la paire \((u, t)\) correspondante dans l'arbre. On retrouve le chemin
-en cherchant le parent de \((u, t)\) dans l'arbre \(T\).
+n'importe quel sommet \(u\) est aisé~: \(location(u)\) donne la paire
+\((u, t)\) correspondante dans l'arbre. On retrouve le chemin en
+cherchant le parent de \((u, t)\) dans l'arbre \(T\).
+
+\subparagraph{Correction} Il est possible que l'algorithme ne soit pas
+correct. On peut se demander si, dans le cas où les nœuds peuvent
+disparaître, \(neighbours\) doit vérifier la propriété suivante~: si
+\(u\) est présent sur \([t_1, t_2]\) puis \([t_3, t_4]\), et soit
+\(t \in [t_1, t_2]\), alors \(neighbours((u, t))\) ne renvoie que les
+voisins de \(u\) accessibles en \([t, t_2]\) et pas \([t_3, t_4]\). Si
+\(neighbours\) ne vérifie pas cette propriété, alors on pourrait
+stationner sur un nœud qui disparaîtrait, bien qu'il réapparaisse plus
+tard.
+
+Considérant le graphe~\ref{graph_bug}, où la latence des arêtes est
+\(0\). Il y a \(4\) étapes. Je prétends que l'algorithme ne pourra pas
+découvrir le nœud \(f\), pourtant accessible au temps 3 par
+\(s \rightarrow a \rightarrow b \rightarrow c \rightarrow e
+\rightarrow f\), en stationnant sur \(c\) aux temps \(1\) et \(2\).
+
+\begin{figure}[!h]
+  \centering
+  \subfloat[\(G_0\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node] (s) {s};
+      \node[node, above right=of s] (a) {a};
+      \node[node, right=of a] (b) {b};
+      \node[node, right=of b] (c) {c};
+      \node[node, below right=of s] (d) {d};
+
+      \path[->] (s) edge (a) edge (d);
+      \path[->] (a) edge (b);
+      \path[->] (b) edge (c);
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(G_1\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node, draw=none] (s) {};
+      \node[node, draw=none, above right=of s] (a) {};
+      \node[node, draw=none, right=of a] (b) {};
+      \node[node, right=of b] (c) {c};
+      \node[node, below right=of s] (d) {d};
+      \node[node, below right=of c] (e) {e};
+
+      \path[->] (d) edge (e);
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(G_2\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node, draw=none] (s) {};
+      \node[node, draw=none, above right=of s] (a) {};
+      \node[node, draw=none, right=of a] (b) {};
+      \node[node, right=of b] (c) {c};
+      \node[node, draw=none, below right=of s] (d) {};
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(G_3\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node, draw=none] (s) {};
+      \node[node, draw=none, above right=of s] (a) {};
+      \node[node, draw=none, right=of a] (b) {};
+      \node[node, right=of b] (c) {c};
+      \node[node, draw=none, below right=of s] (d) {};
+      \node[node, below right=of c] (e) {e};
+      \node[node, right=of e] (f) {f};
+
+      \path[->] (c) edge (e);
+      \path[->] (e) edge (f);
+    \end{tikzpicture}}
+  \caption{Graphe dynamique \(G = (G_0, G_1, G_2, G_3)\)}\label{graph_bug}
+\end{figure}
+
+Il y a un problème lors de la construction de l'arbre des plus courts
+chemins~\ref{tree_bug}. Dans \(T_2\), on découvre pour la première
+fois \(e\) que l'on marque \(location(e) = (e, 1)\) et
+\(earliest(e) = 1\). Dans \(T_3\), en examinant \((c, 0)\) on va
+découvrir le nœud \((e, 3)\). Or \(earliest(e) = 1 < 3\), donc on
+n'entre pas dans le deuxième \verb|if| et \((e, 3)\) n'est pas
+introduit dans l'arbre. Par conséquent, \(f\) n'est jamais découvert.
+
+\begin{figure}[!t]
+  \centering
+  \subfloat[\(T_0\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node] (s) {\((s, 0)\)};
+      \node[node, draw=none, above right=of s] (a) {};
+      \node[node, draw=none, below right=of s] (d) {};
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(T_1\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node] (s) {\((s, 0)\)};
+      \node[node, above right=of s] (a) {\((a, 0)\)};
+      \node[node, below right=of s] (d) {\((d, 0)\)};
+
+      \path[->] (a) edge (s);
+      \path[->] (d) edge (s);
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(T_2\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node] (s) {\((s, 0)\)};
+      \node[node, above right=of s] (a) {\((a, 0)\)};
+      \node[node, below right=of s] (d) {\((d, 0)\)};
+      \node[node, right=of a] (b) {\((b, 0)\)};
+      \node[node, right=of d] (e) {\((e, 1)\)};
+
+      \path[->] (a) edge (s);
+      \path[->] (d) edge (s);
+      \path[->] (b) edge (a);
+      \path[->] (e) edge (d);
+    \end{tikzpicture}}
+  \quad
+  \subfloat[\(T_3\)]{
+    \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
+      scale=0.4, transform shape]
+      \node[node] (s) {\((s, 0)\)};
+      \node[node, above right=of s] (a) {\((a, 0)\)};
+      \node[node, below right=of s] (d) {\((d, 0)\)};
+      \node[node, right=of a] (b) {\((b, 0)\)};
+      \node[node, right=of d] (e) {\((e, 1)\)};
+      \node[node, right=of b] (c) {\((c, 0)\)};
+
+      \path[->] (a) edge (s);
+      \path[->] (d) edge (s);
+      \path[->] (b) edge (a);
+      \path[->] (e) edge (d);
+      \path[->] (c) edge (b);
+    \end{tikzpicture}}
+  \caption{Arbre des plus courts chemins de \(G\)}\label{tree_bug}
+\end{figure}
 
 Une implémentation de cet algorithme réalisée en OCaml est disponible
 à l'adresse
 \url{https://gist.github.com/MisterDA/6dfb9740ce992ffc2890de83e968eb49}. Les
 contraintes de l'algorithme ont été conservées. L'implémentation ne
-vérifie pas que les données sont bien valides.
+vérifie pas que les données sont bien
+valides. \textcolor{red}{FIXME:\@ vérifier l'implémentation sur ce
+  graphe. La fonction \(neighbours\) n'est pas si triviale à coder.}
 
 \section{Articles de recherche}
 \subsection{Time-varying graphs and dynamic
