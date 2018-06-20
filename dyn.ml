@@ -25,23 +25,12 @@ and neighbour = {
   }
 type graph = node list
 
-module NodeHashtbl = struct
-  include Hashtbl.Make (struct
-              type t = node
-              let equal u v = u.name = v.name
-              let hash = Hashtbl.hash
-            end)
-
-  let choose_opt tbl =
-    let length = length tbl in
-    if length = 0 then None
-    else
-      let n = Random.int length in
-      let i = ref 0 in
-      let choice = ref None in
-      iter (fun k v -> if !i = n then choice := Some (k, v)) tbl;
-      !choice
-end
+module NodeHashtbl =
+  Hashtbl.Make (struct
+      type t = node
+      let equal u v = u.name = v.name
+      let hash = Hashtbl.hash
+    end)
 
 module TimedNodeHashtbl =
   Hashtbl.Make (struct
@@ -88,7 +77,7 @@ let build_shortest_path g s =
 
   let foreach_neighbours parent =
     let {neighbours}, t = parent in
-    let after {node = v; arc_schedule; traversal} =
+    let reachable {node = v; arc_schedule; traversal} =
       let rec aux' = function
         | [] -> ()
         | (start, finish) :: l ->
@@ -100,7 +89,7 @@ let build_shortest_path g s =
       in
       aux' arc_schedule
     in
-    List.iter after neighbours
+    List.iter reachable neighbours
   in
 
   let foreach_depth () =
@@ -114,10 +103,10 @@ let build_shortest_path g s =
   in
 
   let rec find_not_located () =
-    match NodeHashtbl.choose_opt not_located with
-    | None -> ()
-    | Some _ ->
-       foreach_depth ();
+    foreach_depth ();
+    match !nodes_d1 with
+    | [] -> ()
+    | _ ->
        incr d;
        nodes_d0 := !nodes_d1;
        nodes_d1 := [];
