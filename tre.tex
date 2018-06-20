@@ -29,12 +29,7 @@ disparaître au cours du temps. On peut s'en servir pour modéliser des
 réseaux informatiques, comme du calcul distribué ou de la téléphonie
 mobile, ou bien encore des réseaux de transports routiers ou publics.
 
-Plusieurs modèles existent dans la littérature, un des plus simples
-étant de considérer un ensemble de nœuds fixé, et seulement des arêtes
-qui évoluent entre ces nœuds, ce qui amène à considérer une suite de
-graphes statiques.
-
-\begin{figure}[h]
+\begin{figure}[!h]
   \centering
   \subfloat[\(G_1\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
@@ -89,13 +84,40 @@ graphes statiques.
   \caption{Graphe dynamique \(G = (G_1, G_2, G_3, G_4)\)}
 \end{figure}
 
+On rappelle quelques notions sur les graphes usuels, puis on introduit
+les graphes dynamiques en comparant quelques modèles de la
+littérature. On peut ensuite transposer les notions (chemins, …) et
+les structures (sous-graphes, …) des graphes usuels aux graphes
+dynamiques. On s'intéresse à un algorithme de calcul de l'arbre des
+plus courts chemins dans un graphe dynamique, puis à deux articles de
+recherche.
+
 \subsection{Rappels}
-Rappelons d'abord quelques notions sur les graphes, qui nous seront
-utiles par la suite.
 
 \begin{description}
+\item[Graphe] Les graphes (\textit{graphs}) sont des modèles abstraits
+  constitués par la donnée de points, appelés nœuds (\textit{nodes})
+  ou sommets (\textit{vertices}), et de liens entre ces points,
+  appelés arêtes (\textit{edges}). Les arêtes comme les nœuds peuvent
+  être étiquetées, le label représentant souvent le coût pour
+  traverser l'élément. Un graphe est noté \(G = (V, E)\), où \(V\)
+  est l'ensemble des sommets et \(E\) l'ensemble des arêtes.
+\item[Non-orienté, orienté] Un graphe \(G = (V, E)\) est non-orienté si
+  \(E\) est un ensemble de paires de sommets, orienté si \(E\) est un
+  ensemble de couples de sommets.
+\item[Chaîne, chemin] Une chaîne est une suite finie d'arêtes
+  consécutives dans un graphe non-orienté. Un chemin est l'équivalent
+  dans un graphe orienté.
+\item[Degré] Le degré d'un sommet d'un graphe est le nombre de liens
+  reliant ce sommet, noté \(\deg : V \to \mathbb{N}\). Dans le cas
+  d'un graphe orienté, on parle de degré entrant, noté \(\deg^-\), et
+  de degré sortant, noté \(\deg^+\).
+\item[Connexité] (\textit{connectivity}) Un graphe non-orienté est
+  connexe si pour tous \(u, v \in V\) il existe une chaîne de \(u\) à
+  \(v\). Dans un graphe orienté, on parle de connexité forte s'il
+  existe un chemin pour tous \(u, v \in V\).
 \item[Graphe \(k\)-régulier] (\textit{\(k\)-regular}) Un graphe est
-  \(k\)-régulier si chacun de ses sommets est de degré \(k\).
+  \(k\)-régulier si tous ses sommets sont de degré \(k\).
 \item[\(k\)-sommet-connexe] (\textit{\(k\)-vertex-connected}) Un
   graphe est \(k\)-sommet-connexe s'il possède plus de \(k\) sommets
   et s'il reste connexe après en avoir ôté moins de \(k\).
@@ -147,14 +169,17 @@ attribuant à chaque tour \(r \in \mathbb{N}^{+}\) un ensemble d'arêtes
 
 
 Il n'y a pas de différence fondamentale entre les \textit{link
-  streams} et les \textit{evolving graphs}.
+  streams} et les \textit{evolving graphs}, mais notons que les
+\textit{stream graphs} et les \textit{link streams} se veulent plus
+généraux en acceptant une définition plus large de la temporalité
+(continue comme discrète), alors que les \textit{evolving graphs} sont
+discrets.
 
 \subsection{Modèles avec latence}
 
-\paragraph{Time-Varying Graphs}\cite{casteigts2012time} (TVG) La
-principale différence avec les modèles ci-dessus est que la présence
-des entités n'est plus définie par un instant, mais par un intervalle
-de temps. On note \(\mathbb{T}\) le domaine temporel. Les auteurs
+\paragraph{Time-Varying Graphs}\cite{casteigts2012time} (TVG) La présence
+des entités est établie par intervalle de temps (discret ou
+continu). On note \(\mathbb{T}\) le domaine temporel. Les auteurs
 proposent de rajouter un label \(L\) sur chaque arête, et préfèrent
 indiquer la présence d'arêtes et de nœuds par des fonctions. On a donc
 \(G = (V, E \subseteq L \times V \otimes V, T \subseteq \mathbb{T},
@@ -176,6 +201,56 @@ ramène à un modèle sans latence.
 
 \section{Notions et Propriétés}
 
+L'article~\cite{latapy2017stream} a pour but d'étendre les notions des
+graphes usuels et des séries temporelles en les combinant pour donner
+forme aux graphes de flux (\textit{stream graphs}),
+\(S = (T, V, W, E)\). On retiendra quelques-unes de ces notions.
+
+\paragraph{Couverture} (\textit{coverage}) La couverture de \(S\) est
+la proportion de nœuds présents sur toutes les possibilités de
+présence de nœuds.
+\[cov(S) = \frac{|W|}{|T \times V|}\]
+
+\paragraph{Nombre de nœuds, de liens} Chaque nœud (reps.\@ lien)
+contribue proportionnellement à \(n = \frac{|W|}{|T|}\) (resp.\@
+\(m = \frac{|E|}{|T|}\)) par son temps de présence dans \(S\)~:
+\(v \in V\) vaut 1 s'il est toujours présent dans \(S\),
+\((u, v) \in V \times V\) vaut 1 si elle est toujours présente dans
+\(S\).
+
+\paragraph{Voisinage et degré} Dans un graphe usuel \(G = (V, E)\), le
+voisinage \(N(v)\) de \(v \in V\) est
+\(N(v) = \{u \,|\, (u, v) \in E\}\), et \(\deg(v) = |N(v)|\). Dans un
+graphe dynamique, le voisinage d'un nœud est défini par
+\(N(v) = \{(t, u) \,|\, (t, uv) \in E\}\). La définition du degré est
+identique. On peut restreindre la définition à un intervalle de temps
+\(N_{[t_1, t_2]}(v) = \{u \,|\, (t, uv) \in E, t \in [t_1, t_2]\}\).\\
+
+\paragraph{Uniformité} Notons \(T_u\) l'ensemble des instants où \(u\)
+est présent. Si pour deux nœuds \(u\) et \(v\), \(|T_u| = |T_v|\),
+alors on peut avoir \(T_u = T_v\), ou \(T_u \cap T_v = \emptyset\), ou
+n'importe quelle autre situation. Pour capturer l'existence possible
+de liens entre \(u\) et \(v\), on définit l'uniformité du graphe~:
+\[\Cup(S) = \frac{\sum_{uv \in V \times V}|T_u \cap T_v|}{\sum_{uv \in
+      V \times V}|T_u \cup T_v|}\]
+Si \(\Cup(S) = 1\), on dit que \(S\) est uniforme. Tous les nœuds sont
+présents aux mêmes instants.
+
+\paragraph{Compacité} Soit \(S = (T, V, W, E)\) un graphe de flux,
+définissons \(S' = (T', V', W, E)\) tel que
+\(T' = [\min\{t \,|\, \exists (t, v) \in W\}, \max\{t \,|\, \exists
+(t, v) \in W\}]\) (on restreint le graphe de la première apparition
+dernière apparition de nœud), et
+\(V' = \{v \,|\, \exists (t, v) \in W\}\) (on restreint le graphe aux
+nœuds qui apparaissent au moins une fois). La compacité est définie
+comme suit~:
+\[c(S) = \frac{|W|}{|T' \times V'|} = cov(S')\]
+Si \(c(S) = 1\), on dit que \(S\) est compact~: les temps de présence
+de tous les nœuds sont le même intervalle de \(T\).\\
+
+L'uniformité et la compacité d'un graphe de flux sont nécessairement
+\(1\).\\
+
 L'article~\cite{kuhn2010distributed} présente deux notions
 intéressantes.
 
@@ -183,22 +258,22 @@ intéressantes.
 Un graphe dynamique \(G = (V, E)\) est \(T\)‑intervalle connexe
 (\textit{\(T\)‑interval connected}) pour \(T \geq 1\) si pour tout
 \(r \in \mathbb{N}\), le graphe statique
-\(G_{r,T} := (V, \bigcap_{i=r}^{r+T-1} E(r))\) est connexe. Le graphe
-est \(\infty\)‑intervalle connexe s'il existe un graphe statique
-connexe \(G' = (V, E')\) tel que pour tous
+\(G_{r,T} := \left(V, \bigcap_{i=r}^{r+T-1} E(r)\right)\) est
+connexe. Le graphe est \(\infty\)‑intervalle connexe s'il existe un
+graphe statique connexe \(G' = (V, E')\) tel que pour tous
 \(r \in \mathbb{N}, E' \subseteq E(r)\)
 
 \paragraph{Causalité de Lamport}
 Soit un graphe dynamique \(G = (V, E, T)\), on peut définir un ordre
 \(\rightarrow\) sur \((V, T)\), tel que
 \((u, r) \rightarrow (v, r')\) ssi \((r' = r + 1)\) et
-\(\{u, v\} \in E(r)\). L'\textit{ordre causal} \(\rightsquigarrow\)
+\(\{u, v\} \in E(r)\). L'\textbf{ordre causal} \(\rightsquigarrow\)
 est défini comme clôture réflexive et transitive de \(\rightarrow\).
 
 \subsection{Voyages et distances}
 
-Les articles~\cite{xuan2003computing},~\cite{casteigts2012time}, et
-~\cite{latapy2017stream} définissent les concepts de chemins,
+Les articles~\cite{xuan2003computing},~\cite{casteigts2012time},
+et~\cite{latapy2017stream} définissent les concepts de chemins,
 distances, et voyages dans les graphes dynamiques. Nous allons
 considérer le modèle de~\cite{casteigts2012time}
 (\(G = (V, E, T, \rho, \zeta)\)), plus complet.
@@ -211,10 +286,13 @@ pour tout \(i < k\). Selon l'application, on pourra supposer
 \(\rho_{[t_i, t_i + \zeta(e_i, t_i)]}(e_i) = \top\), c'est-à-dire que
 l'arête reste présente tandis qu'elle est traversée.
 
-Note~: les auteurs ne proposent pas de définition tenant compte de la
-présence ni de la latence des nœuds.
+Les auteurs ne proposent pas de définition tenant compte de la latence
+des nœuds. Rappelons qu'une arête est présente implique que chacun des
+deux nœuds la constituant est aussi présent.
 
-Dans les graphes dynamiques, les chemins sont asymétriques.
+Dans les graphes dynamiques, les chemins sont asymétriques. Il n'est
+en effet pas possible de revenir en arrière dans le temps, mais il est
+possible de revenir sur un nœud à une date ultérieure.
 
 \paragraph{Distance topologique} La distance topologique entre deux
 nœuds dans un graphe est la longueur minimum (en nombre d'arêtes) des
@@ -325,8 +403,6 @@ Pour un nœud \(u\) présent au temps \(t\), la fonction
 \(neighbours : V \times \mathbb{T} \to \mathcal{P}(V \times
 \mathbb{T})\) renvoie \((v, t')\) si \(v\) est un voisin accessible de
 \(u\) au temps le plus tôt \(t' \geq t\).
-
-\pagebreak
 
 L'algorithme présentait comme condition de boucle principale~:
 \begin{center}
@@ -459,7 +535,7 @@ découvrir le nœud \((e, 3)\). Or \(earliest(e) = 1 < 3\), donc on
 n'entre pas dans le deuxième \verb|if| et \((e, 3)\) n'est pas
 introduit dans l'arbre. Par conséquent, \(f\) n'est jamais découvert.
 
-\begin{figure}[!t]
+\begin{figure}[!h]
   \centering
   \subfloat[\(T_0\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
@@ -575,6 +651,14 @@ selon des propriétés. En voici quelques-unes~:
   condition nécessaire pour un calcul réparti sur tout le réseau, avec
   un nœud de sortie.
 \item
+  \(\forall u, v \in V, \exists \mathcal{J}_1 \in
+  \mathcal{J}^*_{(u,v)}, \exists \mathcal{J}_1 \in
+  \mathcal{J}^*_{(v,u)}~: arrival(\mathcal{J}_1) \leq
+  departure(\mathcal{J}_2)\). (\textit{round connectivity}) Chaque
+  nœud peut joindre tous les autres, et peut être joint
+  ultérieurement. Cette condition peut être requise pour s'assurer
+  explicitement que certains algorithmes terminent.
+\item
   \(\forall e \in E, \forall t \in T, \forall k \in \mathbb{N},
   \rho(e, t) = \rho(e, t + kp)\), pour un \(p \in T\), et \(G\) est
   connexe. Cette propriété de périodicité peut être retrouvée dans les
@@ -614,13 +698,14 @@ volée d'après l'évolution passée du graphe; l'\textit{oblivious
 adversaire mais une loi de probabilité déterminant l'évolution du
 graphe.
 
-\paragraph{Croissance de nœuds} Les auteurs définissent la \textit{vertex
-  growth function} \(g : \mathbb{N} \to \mathbb{N}\), qui généralise
-la notion de graphe expanseur. Un graphe (statique) \(G = (V, E)\) a
-une croissance de nœuds \(g\) si pour tout ensemble de nœuds \(S
-\subset V\) de taille \(s = |S| \leq |V|/2\), l'ensemble des voisins
-\(N(S) := \{v \in V \setminus S : \exists u \in S : (u, v) \in E\}\)
-est de taille au moins \(|N(S)| \geq g(|S|)\).
+\paragraph{Croissance de nœuds} Les auteurs définissent la
+\textit{vertex growth function} \(g : \mathbb{N} \to \mathbb{N}\), qui
+généralise la notion de graphe expanseur. Un graphe (statique)
+\(G = (V, E)\) a une croissance de nœuds \(g\) si pour tout ensemble
+de nœuds \(S \subset V\) de taille \(s = |S| \leq |V|/2\), l'ensemble
+des voisins
+\(N(S) := \{v \in V \setminus S \,|\, \exists u \in S : (u, v) \in
+E\}\) est de taille au moins \(|N(S)| \geq g(|S|)\).
 
 Par exemple, si \(G\) est connexe, sa croissance est au moins \(1\);
 s'il est \(k\)-connexe, sa croissance est au moins \(g(s) = k\); si
@@ -643,15 +728,16 @@ petit entier tel que \(g^{(d)}(1) > |V|/2\).\\
 
 Les auteurs considèrent ensuite le problème de la synchronisation
 d'horloges dans un réseau. Cela peut être utile pour passer
-discrétiser le temps, par exemple pour effectuer une action toutes les
-\(t\) secondes.
+discrétiser le temps, par exemple pour effectuer une action tous les
+\(t\) instants.
 
 Les auteurs prouvent les bornes inférieure et supérieure du
 diamètre dynamique pour les graphes de Markov.\\
 
-Afin de pouvoir calculer dans un graphe (par exemple compter le
-nombres de nœuds, en supposant qu'il ne varie pas), les auteurs
-explorent un problème intermédiaire, le \(k\)-comité.
+Afin de pouvoir résoudre divers problèmes dans les graphes dynamiques
+(par exemple compter le nombres de nœuds, en supposant qu'il ne varie
+pas), les auteurs explorent un problème intermédiaire, le
+\(k\)-comité.
 
 \printbibliography{}
 
