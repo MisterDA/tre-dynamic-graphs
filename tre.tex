@@ -86,9 +86,9 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
   \caption{Graphe dynamique \(G = (G_1, G_2, G_3, G_4)\)}\label{fig:dyn_graph}
 \end{figure}
 
-Un graphe dynamique peut être représenté comme
-dans~\ref{fig:dyn_graph}, où le temps est continu mais les événements
-sont discrets.\\
+Un graphe dynamique peut être représenté comme dans la
+figure~\ref{fig:dyn_graph}, où le temps est continu mais les
+événements sont discrets.\\
 
 Dans ce rapport, on rappelle quelques notions sur les graphes usuels,
 puis on introduit les graphes dynamiques en comparant des modèles de
@@ -292,10 +292,11 @@ pour tout \(i < k\). Selon l'application, on pourra supposer
 \(\rho_{[t_i, t_i + \zeta(e_i, t_i)]}(e_i) = \top\), c'est-à-dire que
 l'arête reste présente tandis qu'elle est traversée.
 
-On notera \(arrival(\mathcal{J})\) et \(departure(\mathcal{J})\) les
+On note \(arrival(\mathcal{J})\) et \(departure(\mathcal{J})\) les
 temps de départ et d'arrivée du chemin
-\(\mathcal{J}\). \(\mathcal{J}_{(u, v)}^*\) est l'ensemble des chemins
-de \(u\) à \(v\).
+\(\mathcal{J}\). \(\mathcal{J}_{(u, v)}\) est un chemin de \(u\) à
+\(v\), \(\mathcal{J}_{(u, v)}^*\) est l'ensemble des chemins de \(u\)
+à \(v\).
 
 Les auteurs ne proposent pas de définition tenant compte de la latence
 des nœuds. Rappelons que si une arête est présente, alors chacun des
@@ -393,22 +394,40 @@ dynamiques.
 est le diamètre dynamique du graphe. Il faut comprendre que si \(u\)
 envoie un message au temps \(t\), alors le message mettra au maximum
 \(D\) tours pour atteindre tous les nœuds du graphe. Le problème est
-de déterminer le diamètre dynamique du graphe.
+de déterminer le diamètre dynamique du graphe. On peut établir une
+notion de diamètre dynamique pour chacune des trois distances sur les
+graphes dynamiques.
 
 \subsection{Plus court chemin (\textit{shortest path})}
 
-\paragraph{Préfixe}
+\paragraph{Modèle}
 On considère le problème de calculer les chemins les plus courts en
 nombre de sauts (\textit{hop-count}) d'un nœud \(u\) pour chacun des
 autres nœuds du graphe. Dans un graphe usuel, cela revient à exécuter
 le parcours en largeur (\textit{BFS}), ou l'algorithme de Dijkstra si
 toutes les arêtes sont de poids \(1\).
 
+L'algorithme~\ref{alg:shortest_path}, présenté
+dans~\cite{xuan2003computing}, calcule les plus courts chemins dans un
+graphe dynamique. Les auteurs font plusieurs suppositions~:
+\begin{itemize}
+\item On ne peut pas s'engager dans une arête si elle disparaît avant
+  de l'avoir traversée. Si l'arête \(e\) existe sur \([t_1, t_2]\), et
+  qu'on s'engage dans l'arête au temps \(t \in [t_1, t_2]\), alors
+  \(t + traversal(e) \leq t_2\).
+\item Si l'arête \(e = (u, v)\) existe sur \([t_1, t_2]\), alors \(u\)
+  et \(v\) existent sur \([t_1, t_2]\).
+\item Il n'existe qu'une seule arête entre deux nœuds (pas de
+  multigraphe).
+\item La latence d'une arête ne varie pas au cours du temps.
+\end{itemize}
+
+\paragraph{Préfixe}
 L'algorithme usuel est basé sur l'observation qu'un préfixe d'un plus
 court chemin est plus court chemin lui-même. Malheureusement, dans les
-graphes dynamique cette propriété n'est plus
-vraie. Dans~\ref{shortest_path_prefix}, le plus court chemin de \(s\)
-à \(t\) est bien
+graphes dynamique cette propriété n'est plus vraie. Dans le
+graphe~\ref{fig:shortest_path_prefix}, le plus court chemin de \(s\) à
+\(t\) est bien
 \(\mathcal{J} = s \rightarrow a \rightarrow b \rightarrow t\), mais le
 préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
 \(\mathcal{J}\) n'est pas le plus court chemin de \(s\) à \(b\), c'est
@@ -439,30 +458,19 @@ préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
       \path[->] (s) edge (b);
     \end{tikzpicture}}
   \caption{Le préfixe d'un plus court chemin n'est pas le plus court
-    chemin}\label{shortest_path_prefix}
+    chemin}\label{fig:shortest_path_prefix}
 \end{figure}
 
 Les auteurs de~\cite{xuan2003computing} proposent une autre propriété
-de préfixe. Si la dernière arête \((v, w)\) d'un plus court chemin
-entre \(u\) et \(w\) débute au temps \(t\), alors le chemin préfixe
-(de \(u\) à \(v\)) est plus court que tous les autres
-chemins de \(u\) à \(v\) finissant avant \(t\).\\
+de préfixe.
 
-\paragraph{Modèle}
-L'algorithme~\ref{alg:shortest_path}, présenté
-dans~\cite{xuan2003computing}, calcule les plus courts chemins dans un
-graphe dynamique. Les auteurs font plusieurs suppositions~:
-\begin{itemize}
-\item On ne peut pas s'engager dans une arête si elle disparaît avant
-  de l'avoir traversée. Si l'arête \(e\) existe sur \([t_1, t_2]\), et
-  qu'on s'engage dans l'arête au temps \(t \in [t_1, t_2]\), alors
-  \(t + traversal(e) \leq t_2\).
-\item Si l'arête \(e = (u, v)\) existe sur \([t_1, t_2]\), alors \(u\)
-  et \(v\) existent sur \([t_1, t_2]\).
-\item Il n'existe qu'une seule arête entre deux nœuds (pas de
-  multigraphe).
-\item La latence d'une arête ne varie pas au cours du temps.
-\end{itemize}
+\noindent
+\fbox{\parbox{\textwidth}{Soit un graphe dynamique \(G = (V, E)\) et
+    un plus court chemin \(\mathcal{J}_{(u, w)}\) dans \(G\). Si la
+    dernière arête \((v, w)\) de \(\mathcal{J}_{(u, w)}\) débute au
+    temps \(t\), alors le chemin préfixe \(\mathcal{J}'_{(u, v)}\) de
+    \(\mathcal{J}_{(u, w)}\) est plus court que tous les autres
+    chemins de \(u\) à \(v\) finissant avant \(t\).}}\\
 
 \paragraph{Condition d'arrêt}
 Pour un nœud \(u\) présent au temps \(t\), la fonction
@@ -480,8 +488,7 @@ pas atteignable depuis \((s, 0)\), alors ce nœud ne sera jamais marqué
 par \(location\) et l'algorithme ne termine pas. Il existe une
 meilleure condition d'arrêt~: si aucun nœud n'a été inséré à la
 profondeur \(d\), alors il n'existe pas de plus court chemin de
-longueur au moins \(d\). L'algorithme s'arrête dès que cette condition
-est atteinte.\\
+longueur au moins \(d\) et l'algorithme se termine.\\
 
 \begin{algorithm}[H]
   \DontPrintSemicolon{}
@@ -521,14 +528,19 @@ n'importe quel sommet \(u\) est aisé~: \(location(u)\) donne la paire
 \((u, t)\) correspondante dans l'arbre. On retrouve le chemin en
 cherchant le parent de \((u, t)\) dans l'arbre \(T\).
 
-\paragraph{Correction sur les \textit{Link streams}} Supposons que le
+\paragraph{Preuve pour les \textit{Link streams}} Supposons que le
 graphe est un \textit{link stream}, c'est-à-dire que l'ensemble des
-nœuds est invariant. Tous les nœuds sont présents pendant toute
-l'existence du graphe, et seules les arêtes changent. L'invariant est
-la propriété du préfixe~: si \(\mathcal{J}_{u, w}\) est un plus court
-chemin, et que sa dernière arête est \((v, w)\) débutant au temps
-\(t\), alors \(\mathcal{J}_{u, v}\) est le plus court de tous les
-chemins de \(u\) à \(v\) finissant avant \(t\).
+nœuds est figé. Tous les nœuds sont présents pendant toute l'existence
+du graphe, et seules les arêtes changent.
+
+Soit \(G = (V, E)\) un tel graphe. Cherchons les plus courts chemins
+depuis \((s, 0), s \in V\). Rappelons l'invariant~: soit
+\(\mathcal{J}_{(s, v)}\) un plus court chemin dans \(G\). Si la
+dernière arête \((u, v)\) de \(\mathcal{J}_{(s, v)}\) débute au temps
+\(t\), alors le chemin préfixe \(\mathcal{J}'_{(s, u)}\) de
+\(\mathcal{J}_{(s, v)}\) est plus court que tous les autres chemins de
+\(s\) à \(u\) finissant avant \(t\). Montrons que cet invariant tient
+à chaque itération de l'algorithme.
 
 \subparagraph{Initialisation} \(T\) est initialisé à \((s, 0)\). Si le
 graphe est réduit à \(s\), \(T\) est bien un arbre de plus courts
@@ -598,7 +610,7 @@ de l'arbre.\\
 La terminaison de l'algorithme est évidente, l'algorithme est donc
 correct sur les \textit{link streams}.
 
-\paragraph{Correction sur les \textit{stream graphs}} Dans le cas d'un
+\paragraph{Preuve pour les \textit{stream graphs}} Dans le cas d'un
 \textit{stream graph} (on attribue une fonction de présence aux
 nœuds), l'algorithme n'est plus correct. Observons que \(neighbours\)
 doit vérifier la propriété suivante~: si \(u\) est présent sur
@@ -672,8 +684,9 @@ le nœud \(f\), pourtant accessible au temps 3 par
     \(G = (G_0, G_1, G_2, G_3)\)}\label{fig:graph_bug}
 \end{figure}
 
-Il y a un problème lors de la construction de l'arbre des plus courts
-chemins~\ref{fig:tree_bug}. Dans \(T_2\), on découvre pour la première
+Le problème se pose lors de la construction de
+l'arbre~\ref{fig:tree_bug} des plus courts chemins du
+graphe~\ref{fig:graph_bug}. Dans \(T_2\), on découvre pour la première
 fois \(e\) que l'on marque \(location(e) = (e, 1)\) et
 \(earliest(e) = 1\). Dans \(T_3\), en examinant \((c, 0)\) on va
 découvrir le nœud \((e, 3)\). Or \(earliest(e) = 1 < 3\), donc on
@@ -752,18 +765,18 @@ Une implémentation de cet algorithme réalisée en OCaml est disponible
 \url{https://gist.github.com/MisterDA/6dfb9740ce992ffc2890de83e968eb49}. Les
 contraintes de l'algorithme ont été conservées.
 
-Le graphe est présenté sous forme de liste
-d'adjacence~\ref{listing:datastruct}. Chaque nœud contient ses temps
-de présence, la liste de ses voisins et les temps où chacun d'entre
-eux est accessible, ainsi que la latence de l'arc. Les nœuds sont
+Le graphe est présenté sous forme de liste d'adjacence
+(listing~\ref{listing:datastruct}). Chaque nœud contient ses temps de
+présence, la liste de ses voisins et les temps où chacun d'entre eux
+est accessible, ainsi que la latence de l'arc. Les nœuds sont
 identifiés de manière unique par leur nom. On suppose que les données
 sont valides (les intervalles de temps ne se recoupent pas, …)  et
-triées.
+triées.\\
 
-\begin{listing}[ht]
+\begin{listing}[h]
   \begin{minted}{ocaml}
 type time = float
-type time_interval = time * time (* start * finish *)
+type time_interval = time * time (* [start, finish] *)
 
 type node = {
     name : string;
@@ -781,11 +794,18 @@ type graph = node list
     dynamique}\label{listing:datastruct}
 \end{listing}
 
-Pour le graphe~\ref{fig:dyn_graph}, \(shortest\_path(a, d)\) donne
+Pour le graphe~\ref{fig:dyn_graph}, \(shortest\_path(a, d)\) donne~:
 \mint{text}|a 0.000000 -> c 1.000000 -> d 2.000000| et pour le
-graphe~\ref{fig:graph_bug}, \(shortest\_path(s, f)\) donne
-\mint{text}|Fatal error: exception Failure("location (f) was not
-set")|
+graphe~\ref{fig:graph_bug}, \(shortest\_path(s, f)\) donne~:
+\mint{text}|Fatal error: exception Failure("location(f) was not set")|
+
+\paragraph{Complexité} La profondeur maximum de l'arbre est \(d\), le
+diamètre en sauts (\textit{hop diameter}) du graphe. L'arbre contient
+au maximum \(n d\) paires (\(n\) à chaque profondeur). Vérifier les
+voisins d'un sommet \(u\) prend un temps proportionnel au degré de
+\(u\), donc vérifier les voisins de tous les sommets d'une certaine
+profondeur prend au maximum \(2m\) étapes. L'algorithme a donc une
+complexité en \(O(m d)\).
 
 \paragraph{Optimisation de l'algorithme} On a vu que dans le cas des
 \(\textit{link streams}\),
@@ -793,24 +813,20 @@ set")|
 neighbours(u, t)\). Si on observe d'abord les voisins de \((u, t')\),
 puis qu'on découvre \((u, t)\), il est inutile d'observer deux fois
 \(neighbours(u, t) \setminus neighbours(u, t')\).
-\textcolor{red}{C'était bien ça l'optimisation~?}
-
-\paragraph{Complexité} \textcolor{red}{FIXME:\@ complexité de l'algo.}
 
 \paragraph{Révision de l'algorithme}
-Nous proposons une révision à la propriété de préfixe~: il faut que
-\(\mathcal{J}' = u \rightarrow^* v\) soit plus court que tous les
-autres chemins se finissant avant \(t\), et que \(w\) soit voisin de
-\((v, arrival(\mathcal{J}'))\).
-
-L'algorithme deviendrait~:
-\begin{center}
-  \verb|if| \(t' < earliest(v)\) \verb|or|
-  \(neighbours(v, t') \neq neighbours(v, earliest(v))\) \verb|then|
-\end{center}
-
-\textcolor{red}{FIXME:\@ nouvelle preuve de l'algo, je suis à peu près
-  convaincu du préfixe, mais pas de la nouvelle condition.}
+Une nouvelle propriété de préfixe doit être définie. Je conjecture que
+la suivante aura le bon comportement.\\
+\noindent
+\fbox{\parbox{\textwidth}{Soit un graphe dynamique \(G = (V, E)\) et
+    un plus court chemin \(\mathcal{J}_{(u, w)}\) dans \(G\). Si la
+    dernière arête \((v, w)\) de \(\mathcal{J}_{(u, w)}\) débute au
+    temps \(t\), et soit \(\mathcal{I}^*_{(u, v)}\) l'ensemble des
+    chemins finissant avant \(t\) et tels que
+    \(\forall \mathcal{I}_{(u, v)} \in \mathcal{I}^*_{(u, v)}, w \in
+    neighbours(v, arrival(\mathcal{I}_{(u, v)}))\), alors le chemin
+    préfixe \(\mathcal{J}'_{(u, v)}\) de \(\mathcal{J}_{(u, w)}\) est
+    plus court que tous les chemins de \(\mathcal{I}^*_{(u, v)}\).}}\\
 
 \section{Notes de Lecture}
 \subsection{Time-varying graphs and dynamic
@@ -954,7 +970,15 @@ pas), les auteurs explorent un problème intermédiaire, le
 \(k\)-comité.
 
 \section{Conclusion}
-\textcolor{red}{FIXME:\@ do something}
+Les graphes dynamiques fournissent un formalisme pour décrire des
+interactions au cours du temps. Bien que les auteurs proposent des
+modèles ou des dénominations légèrement différents, les concepts
+fondamentaux restent identiques. Les graphes dynamiques sont un sujet
+d'étude jeune, avec erreurs, ses questions, et ses pistes de
+recherche. Quels sont les algorithmes efficaces~? leur complexité~?
+Au-delà de fournir un langage commun, peut-on utiliser les résultats
+de cette théorie pour l'analyse de réseaux informatiques~? routiers~?
+de transactions financières~?
 
 \printbibliography{}
 
