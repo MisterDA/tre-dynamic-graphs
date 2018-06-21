@@ -1,7 +1,7 @@
 pdf:
 	latexmk -xelatex -shell-escape -interaction=batchmode
 
-dyn:
+dyn: dyn.ml
 	ocamlopt -g dyn.ml -o dyn
 
 clean:

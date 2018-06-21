@@ -10,7 +10,7 @@
  *)
 
 type time = float
-type time_interval = time * time (* start * finish *)
+type time_interval = time * time (* [start, finish] *)
 
 (* We assume that if and edge e = (u, v) exists, both u and v exist. *)
 type node = {
@@ -39,6 +39,16 @@ module TimedNodeHashtbl =
       let hash = Hashtbl.hash
     end)
 
+module List = struct
+  include List
+  let filter_map p f l =
+    let rec aux acc = function
+      | [] -> List.rev acc
+      | h :: t when p h -> aux (f h :: acc) t
+      | _ :: t -> aux acc t
+    in
+    aux [] l
+end
 
 let build_shortest_path g s =
   let st = s, 0. in
@@ -76,20 +86,22 @@ let build_shortest_path g s =
   in
 
   let foreach_neighbours parent =
-    let {neighbours}, t = parent in
-    let reachable {node = v; arc_schedule; traversal} =
-      let rec aux' = function
-        | [] -> ()
-        | (start, finish) :: l ->
-           let t' = start +. traversal in
-           if start <= t' && t' <= finish then
-             let child = (v, t') in
-             inner parent child
-           else aux' l
+    let neighbours ({neighbours; node_schedule}, t) =
+      let (_, finish) = List.find (fun (start, fin) ->
+                            start <= t && t <= fin) node_schedule in
+      let intersects (a, b) (x, y) =
+        (x <= a && a <= y && y <= b) || (a <= x && x <= b && b <= y)
+        || (x <= a && a <= b && b <= y) || (a <= x && x <= y && y <= b)
       in
-      aux' arc_schedule
+      let reachable_intervals {node; arc_schedule; traversal} =
+        let arcs = List.find_all (intersects (t, finish)) arc_schedule in
+        let arcs = List.map (fun (x, y) -> max t x, min finish y) arcs in
+        List.fold_right (fun (x, y) acc ->
+            if x +. traversal <= y then (node, x) :: acc else acc) arcs []
+      in
+      List.(flatten (map reachable_intervals neighbours))
     in
-    List.iter reachable neighbours
+    List.iter (inner parent) (neighbours parent)
   in
 
   let foreach_depth () =
@@ -127,7 +139,12 @@ let shortest_path tree location t =
        if u.name = v.name && t = t' then parent :: acc
        else aux (parent :: current :: acc)
   in
-  let start = NodeHashtbl.find location t in
+
+  let start =
+    try NodeHashtbl.find location t
+    with Not_found ->
+      failwith (Printf.sprintf "location(%s) was not set" t.name)
+  in
   aux [start]
 
 
@@ -140,53 +157,96 @@ let rec print_path = function
 let main () =
   let rec a = {
       name = "a";
-      node_schedule = [1., 4.];
+      node_schedule = [0., 3.];
       neighbours = [
-          {node = b; arc_schedule = [1., 2.]; traversal = 0.0};
-          {node = c; arc_schedule = [2., 2.]; traversal = 0.0};
-          {node = e; arc_schedule = [3., 3.]; traversal = 0.0}
-        ];
+          {node = b; arc_schedule = [0., 1.]; traversal = 0.0};
+          {node = c; arc_schedule = [1., 1.]; traversal = 0.0};
+          {node = e; arc_schedule = [2., 2.]; traversal = 0.0}]
     }
   and b = {
       name = "b";
-      node_schedule = [1., 4.];
+      node_schedule = [0., 3.];
       neighbours = [
-          {node = a; arc_schedule = [1., 2.]; traversal = 0.0};
-          {node = e; arc_schedule = [4., 4.]; traversal = 0.0}
-        ];
+          {node = a; arc_schedule = [0., 1.]; traversal = 0.0};
+          {node = e; arc_schedule = [3., 3.]; traversal = 0.0}]
     }
   and c = {
       name = "c";
-      node_schedule = [1., 4.];
+      node_schedule = [0., 3.];
       neighbours = [
-          {node = e; arc_schedule = [1., 1.]; traversal = 0.0};
-          {node = a; arc_schedule = [2., 2.]; traversal = 0.0};
-          {node = e; arc_schedule = [3., 3.]; traversal = 0.0};
-          {node = d; arc_schedule = [3., 4.]; traversal = 0.0}
-        ];
+          {node = e; arc_schedule = [0., 0.]; traversal = 0.0};
+          {node = a; arc_schedule = [1., 1.]; traversal = 0.0};
+          {node = e; arc_schedule = [2., 2.]; traversal = 0.0};
+          {node = d; arc_schedule = [2., 3.]; traversal = 0.0}]
     }
   and d = {
       name = "d";
-      node_schedule = [1., 4.];
+      node_schedule = [0., 3.];
       neighbours = [
-          {node = c; arc_schedule = [3., 4.]; traversal = 0.0}
-        ];
+          {node = c; arc_schedule = [2., 3.]; traversal = 0.0}]
     }
   and e = {
       name = "e";
-      node_schedule = [1., 4.];
+      node_schedule = [0., 3.];
       neighbours = [
-          {node = c; arc_schedule = [1., 1.]; traversal = 0.0};
-          {node = a; arc_schedule = [3., 3.]; traversal = 0.0};
-          {node = c; arc_schedule = [3., 3.]; traversal = 0.0};
-          {node = b; arc_schedule = [4., 4.]; traversal = 0.0}
-        ];
+          {node = c; arc_schedule = [0., 0.]; traversal = 0.0};
+          {node = a; arc_schedule = [2., 2.]; traversal = 0.0};
+          {node = c; arc_schedule = [2., 2.]; traversal = 0.0};
+          {node = b; arc_schedule = [3., 3.]; traversal = 0.0}]
     } in
   let graph = [a; b; c; d; e] in
 
   let tree, location = build_shortest_path graph a in
   let path = shortest_path tree location d in
-  print_path path
+  print_path path;
 
+  let rec s = {
+      name = "s";
+      node_schedule = [0., 0.];
+      neighbours = [
+          {node = a; arc_schedule = [0., 0.]; traversal = 0.0};
+          {node = d; arc_schedule = [0., 0.]; traversal = 0.0}]
+    }
+  and a = {
+      name = "a";
+      node_schedule = [0., 0.];
+      neighbours = [
+          {node = b; arc_schedule = [0., 0.]; traversal = 0.0}]
+    }
+  and b = {
+      name = "b";
+      node_schedule = [0., 0.];
+      neighbours = [
+          {node = c; arc_schedule = [0., 0.]; traversal = 0.0}]
+    }
+  and c = {
+      name = "c";
+      node_schedule = [0., 3.];
+      neighbours = [
+          {node = b; arc_schedule = [0., 0.]; traversal = 0.0};
+          {node = e; arc_schedule = [3., 3.]; traversal = 0.0}]
+    }
+  and d = {
+      name = "d";
+      node_schedule = [0., 1.];
+      neighbours = [
+          {node = e; arc_schedule = [1., 1.]; traversal = 0.0}]
+    }
+  and e = {
+      name = "e";
+      node_schedule = [(1., 1.); (3., 3.)];
+      neighbours = [
+          {node = f; arc_schedule = [3., 3.]; traversal = 0.0}]
+    }
+  and f = {
+      name = "f";
+      node_schedule = [3., 3.];
+      neighbours = []
+    } in
+  let graph = [a; b; c; d; e] in
+
+  let tree, location = build_shortest_path graph s in
+  let path = shortest_path tree location f in
+  print_path path
 
 let () = main ()
