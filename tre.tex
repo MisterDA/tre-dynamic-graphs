@@ -14,7 +14,7 @@
 \usepackage[colorlinks, citecolor=blue]{hyperref}
 \usepackage{xcolor}
 \usepackage{algorithm2e}
-\usepackage[verbose]{wrapfig}
+\usepackage{minted}
 \usepackage[type={CC}, modifier={by-sa}, version={4.0}]{doclicense}
 
 \title{Graphes Temporels ou Dynamiques}
@@ -293,14 +293,16 @@ pour tout \(i < k\). Selon l'application, on pourra supposer
 l'arête reste présente tandis qu'elle est traversée.
 
 On notera \(arrival(\mathcal{J})\) et \(departure(\mathcal{J})\) les
-temps de départ et d'arrivée du chemin \(\mathcal{J}\).
+temps de départ et d'arrivée du chemin
+\(\mathcal{J}\). \(\mathcal{J}_{(u, v)}^*\) est l'ensemble des chemins
+de \(u\) à \(v\).
 
 Les auteurs ne proposent pas de définition tenant compte de la latence
-des nœuds. Rappelons qu'une arête est présente implique que chacun des
+des nœuds. Rappelons que si une arête est présente, alors chacun des
 deux nœuds la constituant est aussi présent.
 
-Dans les graphes dynamiques, les chemins sont asymétriques. Il n'est
-en effet pas possible de revenir en arrière dans le temps, mais il est
+Dans les graphes dynamiques, les chemins sont asymétriques. Il est
+impossible de revenir en arrière dans le temps. Il est parfois
 possible de revenir sur un nœud à une date ultérieure.
 
 \paragraph{Distance topologique} La distance topologique entre deux
@@ -384,21 +386,14 @@ augmentant. Entre deux étapes, le graphe change. On peut donc voir les
 algorithmes de flot maximum comme les algorithmes de graphes
 dynamiques.
 
-\subsection{Problèmes algoritmiques}
-
-Quels sont les problèmes algorithmiques que l'on peut rencontrer dans
-ce cadre~?
-
-\begin{description}
-\item[Diamètre dynamique] (\textit{dynamic diameter}, \textit{flooding
-    time}) Soit \(G = (V, E)\) un graphe dynamique et \(u \in V\). Si
-  \(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\), alors
-  \(D\) est le diamètre dynamique du graphe. Il faut comprendre que si
-  \(u\) envoie un message au temps \(t\), alors le message mettra au
-  maximum \(D\) tours pour atteindre tous les nœuds du graphe.
-\item[Couverture] (\textit{cover time}) \textcolor{red}{FIXME:\@ ajout
-    de la section}
-\end{description}
+\subsection{Diamètre dynamique}
+(\textit{dynamic diameter}, \textit{flooding time}) Soit
+\(G = (V, E)\) un graphe dynamique et \(u \in V\). Si
+\(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\), alors \(D\)
+est le diamètre dynamique du graphe. Il faut comprendre que si \(u\)
+envoie un message au temps \(t\), alors le message mettra au maximum
+\(D\) tours pour atteindre tous les nœuds du graphe. Le problème est
+de déterminer le diamètre dynamique du graphe.
 
 \subsection{Plus court chemin (\textit{shortest path})}
 
@@ -584,7 +579,7 @@ pointe sur \(\mathcal{J}\). Deux cas se présentent~:
 \begin{itemize}
 \item Si \(t_v < earliest(v)\), alors
   \(neighbours(v, earliest(v)) \subseteq neighbours(v, t_v)\). Il faut
-  donc ajouter \(v, t_v\) à \(T\) avec comme parent \(u, t_u\), mais
+  donc ajouter \((v, t_v)\) à \(T\) avec comme parent \(u, t_u\), mais
   sans mettre à jour \(location(v)\). Ainsi, \(location(v)\)
   continuera de pointer vers un plus court chemin
   \(s \xrightarrow{d'} v\). S'il existe un voisin \((w, t)\) de
@@ -600,7 +595,7 @@ pointe sur \(\mathcal{J}\). Deux cas se présentent~:
 À la fin de cette boucle, l'invariant est correct pour tous les nœuds
 de l'arbre.\\
 
-La terminaison de l'algorithme est immédiate, l'algorithme est donc
+La terminaison de l'algorithme est évidente, l'algorithme est donc
 correct sur les \textit{link streams}.
 
 \paragraph{Correction sur les \textit{stream graphs}} Dans le cas d'un
@@ -614,9 +609,9 @@ ne vérifie pas cette propriété, alors on pourrait stationner sur \(u\)
 à partir de \(t_1\) pour accéder aux voisins disponibles en
 \([t_3, t_4]\), bien que \(u\) disparaisse entre \(t_2\) et \(t_3\).
 
-Considérons le graphe~\ref{graph_bug}, où la latence des arêtes est
-\(0\). Il y a \(4\) étapes. L'algorithme ne pourra pas découvrir le
-nœud \(f\), pourtant accessible au temps 3 par
+Considérons le graphe~\ref{fig:graph_bug}, où la latence des arêtes
+est \(0\). Il y a \(4\) étapes. L'algorithme ne pourra pas découvrir
+le nœud \(f\), pourtant accessible au temps 3 par
 \(s \rightarrow a \rightarrow b \rightarrow c \rightarrow e
 \rightarrow f\), en stationnant sur \(c\) aux temps \(1\) et \(2\).
 
@@ -673,11 +668,12 @@ nœud \(f\), pourtant accessible au temps 3 par
       \path[->] (c) edge (e);
       \path[->] (e) edge (f);
     \end{tikzpicture}}
-  \caption{Graphe dynamique \(G = (G_0, G_1, G_2, G_3)\)}\label{graph_bug}
+  \caption{Graphe dynamique
+    \(G = (G_0, G_1, G_2, G_3)\)}\label{fig:graph_bug}
 \end{figure}
 
 Il y a un problème lors de la construction de l'arbre des plus courts
-chemins~\ref{tree_bug}. Dans \(T_2\), on découvre pour la première
+chemins~\ref{fig:tree_bug}. Dans \(T_2\), on découvre pour la première
 fois \(e\) que l'on marque \(location(e) = (e, 1)\) et
 \(earliest(e) = 1\). Dans \(T_3\), en examinant \((c, 0)\) on va
 découvrir le nœud \((e, 3)\). Or \(earliest(e) = 1 < 3\), donc on
@@ -736,7 +732,7 @@ introduit dans l'arbre. Par conséquent, \(f\) n'est jamais découvert.
       \path[->] (e) edge (d);
       \path[->] (c) edge (b);
     \end{tikzpicture}}
-  \caption{Arbre des plus courts chemins de \(G\)}\label{tree_bug}
+  \caption{Arbre des plus courts chemins de \(G\)}\label{fig:tree_bug}
 \end{figure}
 
 L'exemple donné vérifie bien les conditions de la propriété du
@@ -754,11 +750,52 @@ finit en \(1\), donc avant \(t\).
 Une implémentation de cet algorithme réalisée en OCaml est disponible
 à l'adresse
 \url{https://gist.github.com/MisterDA/6dfb9740ce992ffc2890de83e968eb49}. Les
-contraintes de l'algorithme ont été conservées. L'implémentation ne
-vérifie pas que les données sont bien
-valides. \textcolor{red}{FIXME:\@ vérifier l'implémentation sur ce
-  graphe. La fonction \(neighbours\) n'est pas si triviale à
-  coder. Optimisation de l'algorithme. Structure de donnée.}
+contraintes de l'algorithme ont été conservées.
+
+Le graphe est présenté sous forme de liste
+d'adjacence~\ref{listing:datastruct}. Chaque nœud contient ses temps
+de présence, la liste de ses voisins et les temps où chacun d'entre
+eux est accessible, ainsi que la latence de l'arc. Les nœuds sont
+identifiés de manière unique par leur nom. On suppose que les données
+sont valides (les intervalles de temps ne se recoupent pas, …)  et
+triées.
+
+\begin{listing}[ht]
+  \begin{minted}{ocaml}
+type time = float
+type time_interval = time * time (* start * finish *)
+
+type node = {
+    name : string;
+    node_schedule : time_interval list;
+    neighbours : neighbour list;
+  }
+and neighbour = {
+    node : node;
+    arc_schedule : time_interval list;
+    traversal : time;
+  }
+type graph = node list
+  \end{minted}
+  \caption{Structure de données de graphe
+    dynamique}\label{listing:datastruct}
+\end{listing}
+
+Pour le graphe~\ref{fig:dyn_graph}, \(shortest\_path(a, d)\) donne
+\mint{text}|a 0.000000 -> c 1.000000 -> d 2.000000| et pour le
+graphe~\ref{fig:graph_bug}, \(shortest\_path(s, f)\) donne
+\mint{text}|Fatal error: exception Failure("location (f) was not
+set")|
+
+\paragraph{Optimisation de l'algorithme} On a vu que dans le cas des
+\(\textit{link streams}\),
+\(\forall u \in V, \forall t' > t \in T, neighbours(u, t') \subseteq
+neighbours(u, t)\). Si on observe d'abord les voisins de \((u, t')\),
+puis qu'on découvre \((u, t)\), il est inutile d'observer deux fois
+\(neighbours(u, t) \setminus neighbours(u, t')\).
+\textcolor{red}{C'était bien ça l'optimisation~?}
+
+\paragraph{Complexité} \textcolor{red}{FIXME:\@ complexité de l'algo.}
 
 \paragraph{Révision de l'algorithme}
 Nous proposons une révision à la propriété de préfixe~: il faut que
