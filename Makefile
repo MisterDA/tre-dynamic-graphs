@@ -6,7 +6,7 @@ dyn: dyn.ml
 
 clean:
 	latexmk -C
-	rm -rf auto *.bbl *.run.xml _minted-tre
+	rm -rf auto *.bbl *.run.xml _minted-tre *.pyg
 	rm -rf dyn *.cmi *.cmx *.o
 
 .PHONY: pdf clean

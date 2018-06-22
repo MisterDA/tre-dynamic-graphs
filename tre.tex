@@ -89,8 +89,8 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
 Un graphe dynamique peut être représenté comme dans la
 figure~\ref{fig:dyn_graph}, où le temps est continu mais les
 événements sont discrets. Un graphe dynamique peut être vu comme une
-suite de graphes statiques, chacun défini par un ou un ensemble
-d'événements discrets.\\
+suite de graphes statiques, chacun défini par un unique événement
+instantané ou un ensemble d'événements discrets.\\
 
 Dans ce rapport, on rappelle quelques notions sur les graphes usuels,
 puis on introduit les graphes dynamiques en comparant des modèles de
@@ -249,8 +249,8 @@ présents aux mêmes instants.
 \paragraph{Compacité} Soit \(S = (T, V, W, E)\) un graphe de flux,
 définissons \(S' = (T', V', W, E)\) tel que
 \(T' = [\min\{t \,|\, \exists (t, v) \in W\}, \max\{t \,|\, \exists
-(t, v) \in W\}]\) (on restreint le graphe de la première apparition
-dernière apparition de nœud), et
+(t, v) \in W\}]\) (on restreint le graphe de la première apparition à
+la dernière apparition de nœud), et
 \(V' = \{v \,|\, \exists (t, v) \in W\}\) (on restreint le graphe aux
 nœuds qui apparaissent au moins une fois). La compacité est définie
 comme suit~:
@@ -394,9 +394,9 @@ augmentant. Entre deux étapes, le graphe change. On peut donc voir les
 algorithmes de flot maximum comme les algorithmes de graphes
 dynamiques.
 
-\subsection{Diamètre dynamique}
-(\textit{dynamic diameter}, \textit{flooding time}) Soit
-\(G = (V, E)\) un graphe dynamique et \(u \in V\). Si
+\subsection{Diamètre dynamique (\textit{dynamic diameter},
+  \textit{flooding time})}
+Soit \(G = (V, E)\) un graphe dynamique et \(u \in V\). Si
 \(\forall v \in V, (u, t) \rightsquigarrow (v, t' + D)\), alors \(D\)
 est le diamètre dynamique du graphe. Il faut comprendre que si \(u\)
 envoie un message au temps \(t\), alors le message mettra au maximum
@@ -412,7 +412,7 @@ algorithmes sont distribués~: chaque nœud exécute l'algorithme. Les
 arêtes servent à communiquer entre les nœuds.
 \begin{description}
 \item[Comptage] Quand l'algorithme est exécuté sur un graphe à \(n\)
-  nœuds, chaque nœuds termine l'exécution en produisant \(n\).
+  nœuds, chaque nœud termine l'exécution en produisant \(n\).
 \item[\(k\)-vérification] Chaque nœud débute avec un entier \(k\) et
   doit déterminer si \(n \leq k\). Les nœuds répondent ``oui'' ssi il
   y a au plus \(k\) nœuds dans le graphe.
@@ -449,9 +449,9 @@ suppositions~:
 \paragraph{Préfixe}
 L'algorithme usuel est basé sur l'observation qu'un préfixe d'un plus
 court chemin est un plus court chemin lui-même. Malheureusement, dans
-les graphes dynamique cette propriété n'est plus vraie. Dans le
-graphe~\ref{fig:shortest_path_prefix}, le plus court chemin de \(s\) à
-\(t\) est bien
+les graphes dynamiques cette propriété n'est plus vraie. Dans le
+graphe de la figure~\ref{fig:shortest_path_prefix}, le plus court
+chemin de \(s\) à \(t\) est bien
 \(\mathcal{J} = s \rightarrow a \rightarrow b \rightarrow t\), mais le
 préfixe \(\mathcal{J'''} = s \rightarrow a \rightarrow b\) de
 \(\mathcal{J}\) n'est pas le plus court chemin de \(s\) à \(b\), c'est
@@ -499,8 +499,8 @@ propriété de préfixe.
 \paragraph{Condition d'arrêt}
 L'algorithme présentait comme condition de boucle principale~:
 \begin{center}
-  \verb|tant que| \(\exists w \in V_G\) \verb|tel que| \(location(w)\)
-  \verb|n'est pas définie|.
+  \verb|tant qu'il existe| \(w \in V_G\) \verb|tel que|
+  \(location(w)\) \verb|n'est pas définie|.
 \end{center}
 Cette condition n'est pas très pertinente; en effet si un nœud n'est
 pas atteignable depuis \((s, 0)\), alors ce nœud ne sera jamais marqué
@@ -545,14 +545,14 @@ Pour un nœud \(u\) présent au temps \(t\), la fonction
     }
     \(d \leftarrow d + 1\)\;
   }
-  \caption{Arbre des plus courts chemins\label{alg:shortest_path}}
+  \caption{Arbre des plus courts chemins}\label{alg:shortest_path}
 \end{algorithm}
 
 Une fois que l'arbre a été calculé, retrouver le chemin de \(s\) à
 n'importe quel sommet \(u\) est aisé~: \(location(u)\) donne la paire
 \((u, t)\) correspondante dans l'arbre. On retrouve le chemin en
-remontant de parent en parent depuis \((u, t)\) jusqu'à \((s, 0)\)
-dans l'arbre \(T\).
+remontant de parent en parent dans l'arbre \(T\), depuis \((u, t)\)
+jusqu'à \((s, 0)\).
 
 \paragraph{Preuve pour les \textit{Link streams}} Supposons que le
 graphe est un \textit{link stream}, c'est-à-dire que l'ensemble des
@@ -563,7 +563,7 @@ Soit \(G = (V, E)\) un tel graphe. Cherchons les plus courts chemins
 depuis \((s, 0), s \in V\).
 
 \subparagraph{Initialisation} \(T\) est initialisé à \((s, 0)\). Si le
-graphe est réduit à \(s\), \(T\) est bien un arbre de plus courts
+graphe est réduit à \(s\), \(T\) est bien un arbres de plus courts
 chemins. \(location(v)\) pointe vers le plus court chemin
 \(s \xrightarrow{0} s\).
 
@@ -589,7 +589,7 @@ soit un plus court chemin. Il y a alors deux possibilités.
   \(\forall u \in V, \forall t' > t \in T, neighbours(u, t') \subseteq
   neighbours(u, t)\). Si \(t_v < earliest(v)\), alors \((v, t_v)\)
   capture plus de voisins que \((v, earliest(v))\) et doit être ajouté
-  à l'arbre des plus courts chemins avec comme parent \(u, t_u\). On
+  à l'arbre des plus courts chemins avec comme parent \((u, t_u)\). On
   met à jour \(earliest(v) := t_v\). Il n'y a pas besoin de mettre à
   jour \(location(v)\) qui pointe déjà vers un plus court chemin
   \(s \xrightarrow{d+1} v\). Si \(t_v \geq earliest(v)\) alors
@@ -602,17 +602,19 @@ parent \((u, t_u)\), \(location(v)\) pointe vers un plus court chemin
 \(s \xrightarrow{d+1} v\), et \(earliest(v)\) est le temps le plus tôt
 auquel on puisse accéder à \(v\). L'invariant est conservé.\\
 
-Supposons que \((s, 0) \xrightarrow{d} (u, t_u) \rightarrow (v, t_v)\)
+Supposons que
+\(\mathcal{J} = (s, 0) \xrightarrow{d} (u, t_u) \rightarrow (v, t_v)\)
 ne soit pas un plus court chemin \(s \xrightarrow{d+1} v\). Par
 conséquent, il existe un plus court chemin
-\(\mathcal{J} = s \xrightarrow{d'} v\) avec \(d' \leq d\). Par
-hypothèse, \(\mathcal{J}\) est déjà dans \(T\). Deux cas se
-présentent~:
+\(\mathcal{J}' = s \xrightarrow{d'} v\) avec \(d' \leq d\). Par
+hypothèse, \(\mathcal{J}'\) est déjà dans \(T\). On veut vérifier que
+\(\mathcal{J}\) n'est pas ajouté comme plus court chemin de \(s\) à
+\(v\) dans l'arbre. Deux cas se présentent~:
 \begin{itemize}
 \item Si \(t_v < earliest(v)\), alors
   \(neighbours(v, earliest(v)) \subseteq neighbours(v, t_v)\). Il faut
-  donc ajouter \((v, t_v)\) à \(T\) avec comme parent \(u, t_u\), mais
-  sans mettre à jour \(location(v)\). Ainsi, \(location(v)\)
+  donc ajouter \((v, t_v)\) à \(T\) avec comme parent \((u, t_u)\),
+  mais sans mettre à jour \(location(v)\). Ainsi, \(location(v)\)
   continuera de pointer vers un plus court chemin
   \(s \xrightarrow{d'} v\). S'il existe un voisin \((w, t)\) de
   \((v, t_v)\) accessible seulement sur \([t_v, earliest(v)[\), alors
@@ -1015,11 +1017,12 @@ Les graphes dynamiques fournissent un formalisme pour décrire des
 interactions au cours du temps. Bien que les auteurs proposent des
 modèles ou des dénominations légèrement différents, les concepts
 fondamentaux restent identiques. Les graphes dynamiques sont un sujet
-d'étude jeune, avec erreurs, ses questions, et ses pistes de
-recherche. Quels sont les algorithmes efficaces~? leur complexité~?
+d'étude jeune, avec ses questions et ses pistes de recherche. Quels
+sont les algorithmes corrects et efficaces sur les problèmes déjà
+identifiés~? Quels mystères nous réservent les graphes dynamiques~?
 Au-delà de fournir un langage commun, peut-on utiliser les résultats
 de cette théorie pour l'analyse de réseaux informatiques~? routiers~?
-de transactions financières~?
+biologiques~?
 
 \pagebreak
 \printbibliography{}
