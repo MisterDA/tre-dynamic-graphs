@@ -8,7 +8,7 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 \usepackage{subfig}
-\usepackage[backend=biber, style=numeric]{biblatex}
+\usepackage[backend=biber, style=numeric, maxbibnames=99]{biblatex}
 \bibliography{tre.bib}
 \usepackage{hyperxmp}
 \usepackage[colorlinks, citecolor=blue]{hyperref}
@@ -33,7 +33,7 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
 
 \begin{figure}[!h]
   \centering
-  \subfloat[\(G_1\)]{
+  \subfloat[Temps \(0\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node] (e) {e};
@@ -46,7 +46,7 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
       \path (e) edge (c);
     \end{tikzpicture}}
   \qquad
-  \subfloat[\(G_2\)]{
+  \subfloat[Temps \(1\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node, draw=none] (e) {};
@@ -58,7 +58,7 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
       \path (a) edge (b) edge [bend left=30] (c);
     \end{tikzpicture}}
   \qquad
-  \subfloat[\(G_3\)]{
+  \subfloat[Temps \(2\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node] (e) {e};
@@ -71,7 +71,7 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
       \path (a) edge (e);
     \end{tikzpicture}}
   \qquad
-  \subfloat[\(G_4\)]{
+  \subfloat[Temps \(3\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node] (e) {e};
@@ -83,7 +83,7 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
       \path (b) edge (e) edge (c);
       \path (c) edge (d);
     \end{tikzpicture}}
-  \caption{Graphe dynamique \(G = (G_1, G_2, G_3, G_4)\)}\label{fig:dyn_graph}
+  \caption{Graphe dynamique}\label{fig:dyn_graph}
 \end{figure}
 
 Un graphe dynamique peut être représenté comme dans la
@@ -126,10 +126,10 @@ recherche.
   \(k\)-régulier si tous ses sommets sont de degré \(k\).
 \item[\(k\)-sommet-connexe] (\textit{\(k\)-vertex-connected}) Un
   graphe est \(k\)-sommet-connexe s'il possède plus de \(k\) sommets
-  et s'il reste connexe après en avoir ôté moins de \(k\).
+  et s'il reste connexe après en avoir ôté strictement moins de \(k\).
 \item[Graphe expanseur] (\textit{expander graph}) Le taux d'expansion
-  d'un graphe est une mesure de sa connectivité. Soit \(G = (V, E)\)
-  un graphe, et \(W\) un sous-graphe de \(G\). La \textbf{frontière
+  d'un graphe est une mesure de sa connexité. Soit \(G = (V, E)\) un
+  graphe, et \(W\) un sous-graphe de \(G\). La \textbf{frontière
     extérieure des sommets} (\textit{outer vertex boundary}) est
   l'ensemble des sommets de \(V \setminus W\) ayant au moins un voisin
   dans \(W\).
@@ -152,27 +152,26 @@ graphes variants avec le temps (\(\textit{time-varying graphs}\)).
 
 \subsection{Modèles sans latence}
 
-\paragraph{Graphe de flux}\cite{latapy2017stream} (\textit{stream
-  graph}) Un graphe de flux \(S = (T, V, W, E)\) est un ensemble fini
-de nœuds \(V\), un ensemble d'instants \(T\), un ensemble de nœuds
-temporels \(W \subseteq T \times V\) (un ensemble de nœuds indexés par
-un temps), et un ensemble d'arêtes
+\paragraph{Graphe de flux}\cite{DBLP:journals/corr/abs-1710-04073}
+(\textit{stream graph}) Un graphe de flux \(S = (T, V, W, E)\) est un
+ensemble fini de nœuds \(V\), un ensemble d'instants \(T\), un
+ensemble de nœuds temporels \(W \subseteq T \times V\) (un ensemble de
+nœuds indexés par un temps), et un ensemble d'arêtes
 \(E \subseteq T \times (V \otimes V)\) tel que si \((t, uv) \in E\)
 alors \((t, u) \in W\) et \((t, v) \in W\) (si une arête existe à un
 temps \(t\), alors les deux nœuds de l'arête existent aussi à ce
 temps).
 
-\paragraph{Flux de liens}\cite{latapy2017stream} (\textit{link
-stream}) Si tous les nœuds du graphe de flux sont présents à chaque
-instant, on parle de flux de liens.
+\paragraph{Flux de liens}\cite{DBLP:journals/corr/abs-1710-04073}
+(\textit{link stream}) Si tous les nœuds du graphe de flux sont
+présents à chaque instant, on parle de flux de liens.
 
-\paragraph{Graphe évoluant}\cite{kuhn2011dynamic} (\textit{evolving
-  graph}) Il s'agit d'un graphe dynamique \(G = (V, E)\), où \(V\) est
-un ensemble de nœuds, et
+\paragraph{Graphe évoluant}\cite{DBLP:journals/sigact/KuhnO11}
+(\textit{evolving graph}) Il s'agit d'un graphe dynamique
+\(G = (V, E)\), où \(V\) est un ensemble de nœuds, et
 \(E : \mathbb{N}^{+} \to \mathcal{P}(V \times V)\) est une fonction
 attribuant à chaque tour \(r \in \mathbb{N}^{+}\) un ensemble d'arêtes
 \(E(r)\) pour ce tour. Ici l'ensemble des nœuds ne varie pas.\\
-
 
 Il n'y a pas de différence fondamentale entre les \textit{link
   streams} et les \textit{evolving graphs}, mais notons que les
@@ -183,11 +182,13 @@ discrets.
 
 \subsection{Modèles avec latence}
 
-\paragraph{Time-Varying Graphs}\cite{casteigts2012time} (TVG) La présence
-des entités est établie par intervalle de temps (discret ou
-continu). On note \(\mathbb{T}\) le domaine temporel. Les auteurs
-proposent de rajouter un label \(L\) sur chaque arête, et préfèrent
-indiquer la présence d'arêtes et de nœuds par des fonctions. On a donc
+\paragraph{Time-Varying
+  Graphs}\cite{DBLP:journals/paapp/CasteigtsFQS12}
+(TVG) La présence des entités est établie par intervalle de temps
+(discret ou continu). On note \(\mathbb{T}\) le domaine temporel. Les
+auteurs proposent de rajouter un label \(L\) sur chaque arête, et
+préfèrent indiquer la présence d'arêtes et de nœuds par des
+fonctions. On a donc
 \(G = (V, E \subseteq L \times V \otimes V, T \subseteq \mathbb{T},
 \rho, \zeta)\), où~:
 \begin{itemize}
@@ -202,15 +203,16 @@ indiquer la présence d'arêtes et de nœuds par des fonctions. On a donc
 
 On peut à l'instar des arêtes étendre ce modèle aux nœuds du graphe,
 avec \(\psi\) la fonction de présence et \(\varphi\) la fonction de
-latence. En choisissant une fonction de latence constante à 1, on se
-ramène à un modèle sans latence.
+latence. En choisissant une fonction de latence nulle, on se ramène à
+un modèle sans latence.
 
 \section{Notions et Propriétés}
 
-L'article~\cite{latapy2017stream} a pour but d'étendre les notions des
-graphes usuels et des séries temporelles en les combinant pour donner
-forme aux graphes de flux (\textit{stream graphs}),
-\(S = (T, V, W, E)\). On retiendra quelques-unes de ces notions.
+L'article~\cite{DBLP:journals/corr/abs-1710-04073} a pour but
+d'étendre les notions des graphes usuels et des séries temporelles en
+les combinant pour donner forme aux graphes de flux (\textit{stream
+  graphs}), \(S = (T, V, W, E)\). On retiendra quelques-unes de ces
+notions.
 
 \paragraph{Couverture} (\textit{coverage}) La couverture de \(S\) est
 la proportion de nœuds présents sur toutes les possibilités de
@@ -257,7 +259,7 @@ de tous les nœuds sont le même intervalle de \(T\).\\
 L'uniformité et la compacité d'un graphe de flux sont nécessairement
 \(1\).\\
 
-L'article~\cite{kuhn2010distributed} présente deux notions
+L'article~\cite{DBLP:conf/stoc/KuhnLO10} présente deux notions
 intéressantes.
 
 \paragraph{Connexité \(T\)‑intervalle}
@@ -278,10 +280,12 @@ est défini comme clôture réflexive et transitive de \(\rightarrow\).
 
 \subsection{Voyages et distances}
 
-Les articles~\cite{xuan2003computing},~\cite{casteigts2012time},
-et~\cite{latapy2017stream} définissent les concepts de chemins,
-distances, et voyages dans les graphes dynamiques. Nous allons
-considérer le modèle de~\cite{casteigts2012time}
+Les
+articles~\cite{DBLP:journals/ijfcs/XuanFJ03},~\cite{DBLP:journals/paapp/CasteigtsFQS12},
+et~\cite{DBLP:journals/corr/abs-1710-04073} définissent les concepts
+de chemins, distances, et voyages dans les graphes dynamiques. Nous
+allons considérer le modèle
+de~\cite{DBLP:journals/paapp/CasteigtsFQS12}
 (\(G = (V, E, T, \rho, \zeta)\)), plus complet.
 
 \paragraph{Voyages, chemins} (\textit{journeys, paths}) Un voyage est
@@ -335,12 +339,13 @@ seulement les nœuds en relation à un certain temps dans \(T\).
 
 \subsection{Graphes dynamiques aléatoires}
 
-Dans~\cite{casteigts2012time} et~\cite{kuhn2011dynamic}, les auteurs
-construisent des graphes dynamiques aléatoires en posant que la
-fonction de présence d'une arête \(\rho : E \times T \to {0, 1}\) suit
-une loi de probabilité. On peut imaginer des graphes dynamiques
-suivant des chaînes de Markov, où une arête apparaît au tour suivant
-avec une probabilité \(p\) et disparaît avec une probabilité \(q\),
+Dans~\cite{DBLP:journals/paapp/CasteigtsFQS12}
+et~\cite{DBLP:journals/sigact/KuhnO11}, les auteurs construisent des
+graphes dynamiques aléatoires en posant que la fonction de présence
+d'une arête \(\rho : E \times T \to {0, 1}\) suit une loi de
+probabilité. On peut imaginer des graphes dynamiques suivant des
+chaînes de Markov, où une arête apparaît au tour suivant avec une
+probabilité \(p\) et disparaît avec une probabilité \(q\),
 indépendamment des autres arêtes. Si \(q = 1 - p\), chaque graphe
 statique est un graphe d'Erdős-Rényi.
 
@@ -405,11 +410,12 @@ On considère le problème de calculer les chemins les plus courts en
 nombre de sauts (\textit{hop-count}) d'un nœud \(u\) pour chacun des
 autres nœuds du graphe. Dans un graphe usuel, cela revient à exécuter
 le parcours en largeur (\textit{BFS}), ou l'algorithme de Dijkstra si
-toutes les arêtes sont de poids \(1\).
+les arêtes sont valuées à \(1\).
 
 L'algorithme~\ref{alg:shortest_path}, présenté
-dans~\cite{xuan2003computing}, calcule les plus courts chemins dans un
-graphe dynamique. Les auteurs font plusieurs suppositions~:
+dans~\cite{DBLP:journals/ijfcs/XuanFJ03}, calcule les plus courts
+chemins dans un graphe dynamique. Les auteurs font plusieurs
+suppositions~:
 \begin{itemize}
 \item On ne peut pas s'engager dans une arête si elle disparaît avant
   de l'avoir traversée. Si l'arête \(e\) existe sur \([t_1, t_2]\), et
@@ -424,8 +430,8 @@ graphe dynamique. Les auteurs font plusieurs suppositions~:
 
 \paragraph{Préfixe}
 L'algorithme usuel est basé sur l'observation qu'un préfixe d'un plus
-court chemin est plus court chemin lui-même. Malheureusement, dans les
-graphes dynamique cette propriété n'est plus vraie. Dans le
+court chemin est un plus court chemin lui-même. Malheureusement, dans
+les graphes dynamique cette propriété n'est plus vraie. Dans le
 graphe~\ref{fig:shortest_path_prefix}, le plus court chemin de \(s\) à
 \(t\) est bien
 \(\mathcal{J} = s \rightarrow a \rightarrow b \rightarrow t\), mais le
@@ -435,7 +441,7 @@ préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
 
 \begin{figure}[!h]
   \centering
-  \subfloat[\(G_0\)]{
+  \subfloat[Temps \(0\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node] (s) {s};
@@ -448,7 +454,7 @@ préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
       \path[->] (b) edge (t);
     \end{tikzpicture}}
   \qquad
-  \subfloat[\(G_1\)]{
+  \subfloat[Temps \(1\)]{
     \begin{tikzpicture}[node/.style={circle, draw, minimum size=1cm]},
       scale=0.5, transform shape]
       \node[node] (s) {s};
@@ -461,8 +467,8 @@ préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
     chemin}\label{fig:shortest_path_prefix}
 \end{figure}
 
-Les auteurs de~\cite{xuan2003computing} proposent une autre propriété
-de préfixe.
+Les auteurs de~\cite{DBLP:journals/ijfcs/XuanFJ03} proposent une autre
+propriété de préfixe.
 
 \noindent
 \fbox{\parbox{\textwidth}{Soit un graphe dynamique \(G = (V, E)\) et
@@ -473,14 +479,9 @@ de préfixe.
     chemins de \(u\) à \(v\) finissant avant \(t\).}}\\
 
 \paragraph{Condition d'arrêt}
-Pour un nœud \(u\) présent au temps \(t\), la fonction
-\(neighbours : V \times \mathbb{T} \to \mathcal{P}(V \times
-\mathbb{T})\) renvoie \((v, t')\) si \(v\) est un voisin accessible de
-\(u\) au temps le plus tôt \(t' \geq t\).\\
-
 L'algorithme présentait comme condition de boucle principale~:
 \begin{center}
-  \verb|while| \(\exists w \in V_G\) \verb|tel que| \(location(w)\)
+  \verb|tant que| \(\exists w \in V_G\) \verb|tel que| \(location(w)\)
   \verb|n'est pas définie|.
 \end{center}
 Cette condition n'est pas très pertinente; en effet si un nœud n'est
@@ -488,7 +489,13 @@ pas atteignable depuis \((s, 0)\), alors ce nœud ne sera jamais marqué
 par \(location\) et l'algorithme ne termine pas. Il existe une
 meilleure condition d'arrêt~: si aucun nœud n'a été inséré à la
 profondeur \(d\), alors il n'existe pas de plus court chemin de
-longueur au moins \(d\) et l'algorithme se termine.\\
+longueur au moins \(d\) et l'algorithme se termine.
+
+\paragraph{Neighbours}
+Pour un nœud \(u\) présent au temps \(t\), la fonction
+\(neighbours : V \times \mathbb{T} \to \mathcal{P}(V \times
+\mathbb{T})\) renvoie \((v, t')\) si \(v\) est un voisin accessible de
+\(u\) au temps le plus tôt \(t' \geq t\).\\
 
 \begin{algorithm}[H]
   \DontPrintSemicolon{}
@@ -513,7 +520,7 @@ longueur au moins \(d\) et l'algorithme se termine.\\
         }
         \If{\(t' < earliest(v)\)}{
           \(earliest(v) \leftarrow t'\)\;
-          \((v, t')\) est enfant de \((u, t)\) dans \(T\)\;
+          \(parent((v, t')) \leftarrow (u, t)\) dans \(T\)\;
           \(run \leftarrow \top\)\;
         }
       }
@@ -526,7 +533,8 @@ longueur au moins \(d\) et l'algorithme se termine.\\
 Une fois que l'arbre a été calculé, retrouver le chemin de \(s\) à
 n'importe quel sommet \(u\) est aisé~: \(location(u)\) donne la paire
 \((u, t)\) correspondante dans l'arbre. On retrouve le chemin en
-cherchant le parent de \((u, t)\) dans l'arbre \(T\).
+remontant de parent en parent depuis \((u, t)\) jusqu'à \((s, 0)\)
+dans l'arbre \(T\).
 
 \paragraph{Preuve pour les \textit{Link streams}} Supposons que le
 graphe est un \textit{link stream}, c'est-à-dire que l'ensemble des
@@ -563,7 +571,7 @@ soit un plus court chemin. Il y a alors deux possibilités.
   \(location(v) := (v, t_v)\). De même, \(earliest(v) =
   \infty\). Alors \(earliest(v) := t_v\), et \((v, t_v)\) est ajouté
   dans l'arbre des plus courts chemins avec comme parent \((u, t_u)\).
-\item On a déjà rencontré \(v\) à la profondeur \(d +
+\item On a déjà rencontré \(v\) à une profondeur \(\leq d +
   1\). \(location(v)\) est donc définie. Rappelons que les nœuds sont
   toujours présents, donc
   \(\forall u \in V, \forall t' > t \in T, neighbours(u, t') \subseteq
@@ -621,9 +629,9 @@ ne vérifie pas cette propriété, alors on pourrait stationner sur \(u\)
 à partir de \(t_1\) pour accéder aux voisins disponibles en
 \([t_3, t_4]\), bien que \(u\) disparaisse entre \(t_2\) et \(t_3\).
 
-Considérons le graphe~\ref{fig:graph_bug}, où la latence des arêtes
-est \(0\). Il y a \(4\) étapes. L'algorithme ne pourra pas découvrir
-le nœud \(f\), pourtant accessible au temps 3 par
+Considérons le graphe de la figure~\ref{fig:graph_bug}, où la latence
+des arêtes est \(0\). Il y a \(4\) étapes. L'algorithme ne pourra pas
+découvrir le nœud \(f\), pourtant accessible au temps 3 par
 \(s \rightarrow a \rightarrow b \rightarrow c \rightarrow e
 \rightarrow f\), en stationnant sur \(c\) aux temps \(1\) et \(2\).
 
@@ -684,9 +692,9 @@ le nœud \(f\), pourtant accessible au temps 3 par
     \(G = (G_0, G_1, G_2, G_3)\)}\label{fig:graph_bug}
 \end{figure}
 
-Le problème se pose lors de la construction de
-l'arbre~\ref{fig:tree_bug} des plus courts chemins du
-graphe~\ref{fig:graph_bug}. Dans \(T_2\), on découvre pour la première
+Le problème se pose lors de la construction de l'arbre de la
+figure~\ref{fig:tree_bug} des plus courts chemins du graphe de la
+figure~\ref{fig:graph_bug}. Dans \(T_2\), on découvre pour la première
 fois \(e\) que l'on marque \(location(e) = (e, 1)\) et
 \(earliest(e) = 1\). Dans \(T_3\), en examinant \((c, 0)\) on va
 découvrir le nœud \((e, 3)\). Or \(earliest(e) = 1 < 3\), donc on
@@ -830,17 +838,17 @@ la suivante aura le bon comportement.\\
 
 \section{Notes de Lecture}
 \subsection{Time-varying graphs and dynamic
-  networks~\cite{casteigts2012time}}
+  networks~\cite{DBLP:journals/paapp/CasteigtsFQS12}}
 Les auteurs identifient trois champs d'applications possibles des
 graphes dynamiques.
 \begin{description}
-\item[Delay-Tolerant Networks]~\cite{fall2007delay} La caractéristique
-  principale de ces réseaux est la possibilité de ne pas être connexe
-  à un moment donné. Les chemins généralement disponibles au cours du
-  temps, et la diffusion ou le routage sont réalisables grâce au
-  mécanisme de \textit{store-carry-forward} (un exemple est celui du
-  courrier électronique).
-\item[Opportunistic-Mobility Networks] Ce sont aussi des DNT, avec la
+\item[Delay-Tolerant Networks]~\cite{DBLP:journals/rfc/rfc4838} La
+  caractéristique principale de ces réseaux est la possibilité de ne
+  pas être connexe à un moment donné. Les chemins généralement
+  disponibles au cours du temps, et la diffusion ou le routage sont
+  réalisables grâce au mécanisme de \textit{store-carry-forward} (un
+  exemple est celui du courrier électronique).
+\item[Opportunistic-Mobility Networks] Ce sont aussi des DTN, avec la
   différence que les nœuds sont mobiles. Il existe des réseaux de
   taxis et de bus équipés de routeurs.
 \item[Real-World Complex Networks] Dans cette catégorie tombent tous
@@ -892,7 +900,7 @@ selon des propriétés. En voici quelques-unes~:
   \(\forall e \in E, \forall t \in T, \forall k \in \mathbb{N},
   \rho(e, t) = \rho(e, t + kp)\), pour un \(p \in T\), et \(G\) est
   connexe. Cette propriété de périodicité peut être retrouvée dans les
-  réseaux de transports, ou les DNT.\@ On peut s'en servir pour
+  réseaux de transports, ou les DTN.\@ On peut s'en servir pour
   réutiliser des calculs de chemins, modulo \(p\).
 \end{itemize}
 
@@ -909,8 +917,8 @@ intéressante est celle où on modélise les interactions d'un groupe
 social par un graphe dynamique et de on tente de minimiser
 l'éloignement temporel moyen afin d'accélérer les échanges.
 
-\subsection{Dynamic Netwoks: Models and
-  Algorithms~\cite{kuhn2011dynamic}}
+\subsection{Dynamic Networks: Models and
+  Algorithms~\cite{DBLP:journals/sigact/KuhnO11}}
 
 Il s'agit essentiellement d'une revue de la littérature, mais qui
 présente néanmoins deux résultats. Tout d'abord, les auteurs
@@ -923,7 +931,7 @@ discrétisé. La fonction de présence des arêtes est dynamique, et
 déterminée par un \textbf{modèle d'adversaire}. On a
 l'\textit{adaptative worst-case adversary} qui génère le graphe à la
 volée d'après l'évolution passée du graphe; l'\textit{oblivious
-  worst-case adversary} impose un graphe pré-déterminé; et le
+  worst-case adversary} impose un graphe prédéterminé; et le
 \textit{random-graph adversary}, lequel n'est pas vraiment un
 adversaire mais une loi de probabilité déterminant l'évolution du
 graphe.
@@ -957,12 +965,12 @@ diamètre dynamique de \(G\) est au plus \(2d\), où \(d\) est le plus
 petit entier tel que \(g^{(d)}(1) > |V|/2\).\\
 
 Les auteurs considèrent ensuite le problème de la synchronisation
-d'horloges dans un réseau. Cela peut être utile pour passer
-discrétiser le temps, par exemple pour effectuer une action tous les
-\(t\) instants.
+d'horloges dans un réseau. Cela peut être utile pour discrétiser le
+temps, par exemple pour effectuer une action tous les \(t\) instants.
 
-Les auteurs prouvent les bornes inférieure et supérieure du
-diamètre dynamique pour les graphes de Markov.\\
+Les auteurs prouvent les bornes inférieure et supérieure du diamètre
+dynamique pour les graphes dont l'évolution est déterminée
+par une chaîne de Markov.\\
 
 Afin de pouvoir résoudre divers problèmes dans les graphes dynamiques
 (par exemple compter le nombres de nœuds, en supposant qu'il ne varie
