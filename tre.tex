@@ -88,7 +88,9 @@ mobile, ou bien encore des réseaux de transports routiers ou publics.
 
 Un graphe dynamique peut être représenté comme dans la
 figure~\ref{fig:dyn_graph}, où le temps est continu mais les
-événements sont discrets.\\
+événements sont discrets. Un graphe dynamique peut être vu comme une
+suite de graphes statiques, chacun défini par un ou un ensemble
+d'événements discrets.\\
 
 Dans ce rapport, on rappelle quelques notions sur les graphes usuels,
 puis on introduit les graphes dynamiques en comparant des modèles de
@@ -403,6 +405,22 @@ de déterminer le diamètre dynamique du graphe. On peut établir une
 notion de diamètre dynamique pour chacune des trois distances sur les
 graphes dynamiques.
 
+\subsection{Autres}
+Plusieurs autres problèmes sont décrits
+dans~\cite{DBLP:conf/stoc/KuhnLO10}. Dans cette situation, les
+algorithmes sont distribués~: chaque nœud exécute l'algorithme. Les
+arêtes servent à communiquer entre les nœuds.
+\begin{description}
+\item[Comptage] Quand l'algorithme est exécuté sur un graphe à \(n\)
+  nœuds, chaque nœuds termine l'exécution en produisant \(n\).
+\item[\(k\)-vérification] Chaque nœud débute avec un entier \(k\) et
+  doit déterminer si \(n \leq k\). Les nœuds répondent ``oui'' ssi il
+  y a au plus \(k\) nœuds dans le graphe.
+\item[Dissémination \(k\)-jeton] \(k\) jetons d'information sont
+  disséminés dans le réseau. Chaque nœud doit finir par connaître les
+  \(k\) jetons.
+\end{description}
+
 \subsection{Plus court chemin (\textit{shortest path})}
 
 \paragraph{Modèle}
@@ -435,7 +453,7 @@ les graphes dynamique cette propriété n'est plus vraie. Dans le
 graphe~\ref{fig:shortest_path_prefix}, le plus court chemin de \(s\) à
 \(t\) est bien
 \(\mathcal{J} = s \rightarrow a \rightarrow b \rightarrow t\), mais le
-préfixe \(\mathcal{J'} = s \rightarrow a \rightarrow b\) de
+préfixe \(\mathcal{J'''} = s \rightarrow a \rightarrow b\) de
 \(\mathcal{J}\) n'est pas le plus court chemin de \(s\) à \(b\), c'est
 \(s \rightarrow b\), disponible au temps \(1\).
 
@@ -542,13 +560,7 @@ nœuds est figé. Tous les nœuds sont présents pendant toute l'existence
 du graphe, et seules les arêtes changent.
 
 Soit \(G = (V, E)\) un tel graphe. Cherchons les plus courts chemins
-depuis \((s, 0), s \in V\). Rappelons l'invariant~: soit
-\(\mathcal{J}_{(s, v)}\) un plus court chemin dans \(G\). Si la
-dernière arête \((u, v)\) de \(\mathcal{J}_{(s, v)}\) débute au temps
-\(t\), alors le chemin préfixe \(\mathcal{J}'_{(s, u)}\) de
-\(\mathcal{J}_{(s, v)}\) est plus court que tous les autres chemins de
-\(s\) à \(u\) finissant avant \(t\). Montrons que cet invariant tient
-à chaque itération de l'algorithme.
+depuis \((s, 0), s \in V\).
 
 \subparagraph{Initialisation} \(T\) est initialisé à \((s, 0)\). Si le
 graphe est réduit à \(s\), \(T\) est bien un arbre de plus courts
@@ -594,8 +606,8 @@ Supposons que \((s, 0) \xrightarrow{d} (u, t_u) \rightarrow (v, t_v)\)
 ne soit pas un plus court chemin \(s \xrightarrow{d+1} v\). Par
 conséquent, il existe un plus court chemin
 \(\mathcal{J} = s \xrightarrow{d'} v\) avec \(d' \leq d\). Par
-hypothèse, \(\mathcal{J}\) est déjà dans \(T\), donc \(location(v)\)
-pointe sur \(\mathcal{J}\). Deux cas se présentent~:
+hypothèse, \(\mathcal{J}\) est déjà dans \(T\). Deux cas se
+présentent~:
 \begin{itemize}
 \item Si \(t_v < earliest(v)\), alors
   \(neighbours(v, earliest(v)) \subseteq neighbours(v, t_v)\). Il faut
@@ -769,8 +781,7 @@ finit en \(1\), donc avant \(t\).
 
 \paragraph{Implémentation}
 Une implémentation de cet algorithme réalisée en OCaml est disponible
-à l'adresse
-\url{https://gist.github.com/MisterDA/6dfb9740ce992ffc2890de83e968eb49}. Les
+à l'adresse \url{https://github.com/MisterDA/tre-dynamic-graphs}. Les
 contraintes de l'algorithme ont été conservées.
 
 Le graphe est présenté sous forme de liste d'adjacence
@@ -802,9 +813,12 @@ type graph = node list
     dynamique}\label{listing:datastruct}
 \end{listing}
 
-Pour le graphe~\ref{fig:dyn_graph}, \(shortest\_path(a, d)\) donne~:
-\mint{text}|a 0.000000 -> c 1.000000 -> d 2.000000| et pour le
-graphe~\ref{fig:graph_bug}, \(shortest\_path(s, f)\) donne~:
+Pour le graphe de la figure~\ref{fig:dyn_graph},
+\(shortest\_path(a, d)\) donne~:
+\mint{text}|a 0.000000 -> c 1.000000 -> d 2.000000|
+et pour le graphe de la figure~\ref{fig:graph_bug},
+\(shortest\_path(s, f)\) donne (montrant que \(f\) n'est pas
+découvert):
 \mint{text}|Fatal error: exception Failure("location(f) was not set")|
 
 \paragraph{Complexité} La profondeur maximum de l'arbre est \(d\), le
@@ -835,6 +849,12 @@ la suivante aura le bon comportement.\\
     neighbours(v, arrival(\mathcal{I}_{(u, v)}))\), alors le chemin
     préfixe \(\mathcal{J}'_{(u, v)}\) de \(\mathcal{J}_{(u, w)}\) est
     plus court que tous les chemins de \(\mathcal{I}^*_{(u, v)}\).}}\\
+
+Une autre possibilité serait de modifier le graphe en entrée. Si un
+nœud \(u\) apparaît sur \(i\) intervalles et disparaît entre, il peut
+être remplacé par autant de nœuds \(u_j, 1 \leq j \leq i\) existant
+sur l'intervalle \(j\), avec le voisinage de \(u\) sur l'intervalle
+\(j\).
 
 \section{Notes de Lecture}
 \subsection{Time-varying graphs and dynamic
@@ -953,11 +973,8 @@ On note \(g^{(f)}\) l'itérée après \(f\) tours, avec
 \(g^{(0)}(s) = s\), et pour \(f > 0\),
 \(g^{(f)}(s) = g^{(f-1)}(s) + g(g^{(f-1)}(s))\).
 
-\textcolor{red}{FIXME:\@ clarifier, exemple}.\\
-
 Si chaque graphe statique est un expanseur, le diamètre dynamique est
 \(O(\log n)\); s'ils sont \(k\)-connexe, le diamètre est \(O(n/k)\).
-\textcolor{red}{FIXME:\@ quote, preuve}.
 
 \paragraph{Lemme} Soit \(G = (V, E)\) un graphe dynamique tel que pour
 chaque tour \(r\), le graphe statique \(G(r)\) est \(g\)-croissant. Le
@@ -973,9 +990,25 @@ dynamique pour les graphes dont l'évolution est déterminée
 par une chaîne de Markov.\\
 
 Afin de pouvoir résoudre divers problèmes dans les graphes dynamiques
-(par exemple compter le nombres de nœuds, en supposant qu'il ne varie
-pas), les auteurs explorent un problème intermédiaire, le
-\(k\)-comité.
+(par exemple compter le nombres de nœuds), les auteurs explorent un
+problème intermédiaire, le \(k\)-comité. Ce problème suppose que le
+graphe est toujours connecté.
+
+\paragraph{\(k\)-comité}
+Les nœuds doivent se partitionner en ensembles, appelés
+\textbf{comités}, tels que~:
+\begin{itemize}
+\item La taille de chaque comité est au plus \(k\),
+\item Si \(k \geq n\), alors il n'existe qu'un comité contenant tous
+  les nœuds.
+\end{itemize}
+Chaque comité dispose d'un unique identifiant, et le but est que
+chaque nœud émette un identifiant de comité validant les deux
+conditions.
+
+Le \(k\)-comité peut être modifié pour résoudre d'autres problèmes, et
+dispose d'un algorithme de vérification, lui-même facilement
+modifiable.
 
 \section{Conclusion}
 Les graphes dynamiques fournissent un formalisme pour décrire des
@@ -988,6 +1021,7 @@ Au-delà de fournir un langage commun, peut-on utiliser les résultats
 de cette théorie pour l'analyse de réseaux informatiques~? routiers~?
 de transactions financières~?
 
+\pagebreak
 \printbibliography{}
 
 \end{document}
